@@ -27,8 +27,6 @@ Route::middleware(['auth', 'can:'.Permission::AdminAccess->value])->group(functi
         Route::get('settings/security', [SecurityController::class, 'edit'])
             ->middleware(RequirePassword::class)
             ->name('security.edit');
-
-        Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
     });
 });
 

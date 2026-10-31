@@ -32,7 +32,7 @@ test('customers cannot open the admin settings pages', function (string $route) 
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route($route))
         ->assertForbidden();
-})->with(['profile.edit', 'security.edit', 'appearance.edit']);
+})->with(['profile.edit', 'security.edit']);
 
 test('admins are sent to the dashboard instead', function (string $route) {
     $this->actingAs(User::factory()->admin()->create())
