@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\Permission;
 use App\Http\Controllers\Admin\ArchivedProductController;
+use App\Http\Controllers\Admin\EmailPreviewController;
 use App\Http\Controllers\Admin\OrderCancellationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderPaymentController;
@@ -17,6 +18,9 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        Route::get('emails', [EmailPreviewController::class, 'index'])->name('emails.index');
+        Route::get('emails/{email}', [EmailPreviewController::class, 'show'])->name('emails.show');
+
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/payment', [OrderPaymentController::class, 'store'])->name('orders.payment.store');

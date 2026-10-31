@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Package, ReceiptText, Store } from 'lucide-react';
+import { LayoutGrid, Mail, Package, ReceiptText, Store } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +14,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard, home } from '@/routes';
+import { index as emailsIndex } from '@/routes/admin/emails';
 import { index as ordersIndex } from '@/routes/admin/orders';
 import { index as productsIndex } from '@/routes/admin/products';
 import type { NavItem } from '@/types';
@@ -33,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Products',
         href: productsIndex(),
         icon: Package,
+    },
+    {
+        title: 'Emails',
+        href: emailsIndex(),
+        icon: Mail,
     },
 ];
 
