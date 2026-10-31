@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use RuntimeException;
@@ -17,9 +18,9 @@ final class DatabaseSeeder extends Seeder
     public function run(): void
     {
         throw_unless(
-            app()->environment('local', 'testing'),
+            app()->environment(config()->array('app.lower_environments')),
             RuntimeException::class,
-            'DatabaseSeeder creates users with a known password. Deployments run ReferenceDataSeeder instead.',
+            'DatabaseSeeder creates users with a known password, so it only runs in '.implode(', ', config()->array('app.lower_environments')).'. Deployments run ReferenceDataSeeder instead.',
         );
 
         $this->call([ReferenceDataSeeder::class, CatalogSeeder::class]);
@@ -35,5 +36,7 @@ final class DatabaseSeeder extends Seeder
             'name' => 'Test Customer',
             'email' => 'customer@example.com',
         ]);
+
+        $this->command?->info('Sign in as admin@example.com or customer@example.com with the password "'.UserFactory::PASSWORD.'".');
     }
 }

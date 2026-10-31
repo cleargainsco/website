@@ -29,6 +29,12 @@ return [
     'env' => env('APP_ENV', 'production'),
 
     /*
+     * Environments that may hold development fixtures: DatabaseSeeder's accounts
+     * with the known factory password. Never add production.
+     */
+    'lower_environments' => ['local', 'testing', 'staging'],
+
+    /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------

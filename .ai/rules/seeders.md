@@ -5,9 +5,9 @@ paths:
 
 # Seeders
 
-## A deployment seeds ReferenceDataSeeder; plain db:seed throws outside local and testing
+## A deployment seeds ReferenceDataSeeder; plain db:seed throws outside the lower environments
 
-`db:seed` is a development command. DatabaseSeeder throws a RuntimeException outside `local` and `testing` rather than seeding a subset — a half-run seed leaves whoever ran it believing the database is seeded.
+`db:seed` is a development command. DatabaseSeeder throws a RuntimeException outside `config('app.lower_environments')` (`local`, `testing` and `staging`) rather than seeding a subset — a half-run seed leaves whoever ran it believing the database is seeded.
 
 A deployed environment runs exactly one seeder, by name:
 
