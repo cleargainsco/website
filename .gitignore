@@ -1,0 +1,39 @@
+/.pest/
+/.phpunit.cache
+/bootstrap/ssr
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/resources/js/actions
+/resources/js/routes
+/resources/js/wayfinder
+/vendor
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/auth.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# Per-developer Claude Code settings
+/.claude/settings.local.json
+
+# Boost writes these with the installing machine's absolute PHP and artisan
+# paths, so a committed copy points at an MCP server nobody else can run.
+# Regenerate per developer with `php artisan boost:install`.
+/.ai/mcp/mcp.json
+/.junie/mcp/mcp.json
