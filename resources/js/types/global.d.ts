@@ -14,6 +14,7 @@ declare module '@inertiajs/core' {
             sidebarOpen: boolean;
             supportEmail: string;
             cartCount: number;
+            ageVerified: boolean;
             [key: string]: unknown;
         };
     }

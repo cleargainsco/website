@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Storefront\AgeVerificationController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CartItemController;
 use App\Http\Controllers\Storefront\CertificateController;
@@ -16,6 +17,8 @@ Route::get('shop', [ProductController::class, 'index'])->name('shop.index');
 Route::get('shop/{product}', [ProductController::class, 'show'])->name('shop.show');
 
 Route::get('testing', [CertificateController::class, 'index'])->name('testing');
+
+Route::post('age-verification', [AgeVerificationController::class, 'store'])->middleware('throttle:30,1')->name('age-verification.store');
 
 Route::get('cart', [CartController::class, 'show'])->name('cart.show')->withHead(title: 'Your cart', robots: 'noindex, follow');
 

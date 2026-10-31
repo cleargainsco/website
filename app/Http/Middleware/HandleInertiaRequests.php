@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\Storefront\AgeVerificationController;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Shop\Cart\Cart;
@@ -45,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'supportEmail' => config('storefront.support_email'),
             'cartCount' => fn (): int => app(Cart::class)->count(),
+            'ageVerified' => $request->cookie(AgeVerificationController::COOKIE) === '1',
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
