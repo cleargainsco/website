@@ -7,6 +7,7 @@ namespace App\Http\Resources\Admin;
 use App\Http\Resources\MoneyResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Shop\Contracts\OrderHistory;
 use Shop\Models\Product;
 use Shop\ProductTypeRegistry;
 
@@ -26,6 +27,7 @@ final class ProductResource extends JsonResource
             'id' => $this->public_id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'thumbnail_url' => $this->thumbnailUrl(),
             'type_label' => app(ProductTypeRegistry::class)->get($this->type)->label(),
             'amount' => $this->details['amount'] ?? null,
             'stock' => $this->stock,
@@ -34,6 +36,7 @@ final class ProductResource extends JsonResource
             'tier_count' => $this->prices->count(),
             'is_active' => $this->is_active,
             'is_featured' => $this->is_featured,
+            'has_been_ordered' => app(OrderHistory::class)->hasBeenOrdered($this->resource),
         ];
     }
 }

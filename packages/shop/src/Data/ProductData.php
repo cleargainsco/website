@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace Shop\Data;
 
-final readonly class ProductData
+use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
+
+#[MapInputName(SnakeCaseMapper::class)]
+final class ProductData extends Data
 {
     /**
      * @param  array<string, string|null>  $details
@@ -15,12 +22,15 @@ final readonly class ProductData
         public string $name,
         public string $slug,
         public string $summary,
-        public ?string $description,
-        public array $details,
         public int $stock,
-        public bool $isActive,
-        public bool $isFeatured,
+        #[DataCollectionOf(PriceTierData::class)]
         public array $prices,
+        public ?string $description = null,
+        public array $details = [],
+        public bool $isActive = false,
+        public bool $isFeatured = false,
+        public ?UploadedFile $image = null,
+        public bool $removeImage = false,
     ) {}
 
     /**

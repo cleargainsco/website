@@ -10,16 +10,21 @@ use Shop\Models\Product;
 
 final readonly class UpdateProductAction
 {
-    public function __construct(private SyncProductPricesAction $syncPrices) {}
+    public function __construct(
+        private SyncProductPricesAction $syncPrices,
+        private SyncProductImageAction $syncImage,
+    ) {}
 
     public function handle(Product $product, ProductData $data): Product
     {
-        return DB::transaction(function () use ($product, $data): Product {
+        DB::transaction(function () use ($product, $data): void {
             $product->fill($data->productAttributes())->save();
 
             $this->syncPrices->handle($product, $data->prices);
-
-            return $product;
         });
+
+        $this->syncImage->handle($product, $data->image, $data->removeImage);
+
+        return $product;
     }
 }

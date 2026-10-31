@@ -24,4 +24,14 @@ final class ProductPolicy
     {
         return $user->can(Permission::ProductsManage->value);
     }
+
+    public function delete(User $user, Product $product): bool
+    {
+        return $user->can(Permission::ProductsManage->value);
+    }
+
+    public function restore(User $user, Product $product): bool
+    {
+        return $user->can(Permission::ProductsManage->value);
+    }
 }

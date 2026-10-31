@@ -5,6 +5,7 @@ export type AdminProduct = {
     id: string;
     name: string;
     slug: string;
+    thumbnail_url: string | null;
     type_label: string;
     amount: string | null;
     stock: number;
@@ -13,6 +14,7 @@ export type AdminProduct = {
     tier_count: number;
     is_active: boolean;
     is_featured: boolean;
+    has_been_ordered: boolean;
 };
 
 export type ProductField = {
@@ -42,6 +44,7 @@ export type ProductFormData = {
     summary: string;
     description: string | null;
     details: Record<string, string | null>;
+    image_url: string | null;
     stock: number;
     is_active: boolean;
     is_featured: boolean;

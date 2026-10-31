@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Concerns;
 
 use App\Rules\ValidMoney;
-use Brick\Money\Money;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Shop\Contracts\ProductType;
-use Shop\Data\PriceTierData;
 use Shop\Data\ProductData;
 use Shop\Models\Product;
 use Shop\ProductTypeRegistry;
@@ -37,6 +35,8 @@ trait ProductValidationRules
             'prices' => ['required', 'array', 'min:1', 'max:20'],
             'prices.*.min_quantity' => ['required', 'integer', 'min:1', 'max:100000', 'distinct'],
             'prices.*.unit_price' => ['required', new ValidMoney(config()->string('shop.currency'), min: '0.01')],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'remove_image' => ['boolean'],
             'details' => ['array'],
             ...(is_string($type) && in_array($type, $types->keys(), true) ? $types->detailRules($type) : []),
         ];
@@ -74,24 +74,6 @@ trait ProductValidationRules
 
     public function toProductData(): ProductData
     {
-        /** @var array{type: string, name: string, slug: string, summary: string, description?: string|null, stock: int|string, details?: array<string, string|null>, prices: list<array{min_quantity: int|string, unit_price: string}>} $validated */
-        $validated = $this->validated();
-        $currency = config()->string('shop.currency');
-
-        return new ProductData(
-            type: $validated['type'],
-            name: $validated['name'],
-            slug: $validated['slug'],
-            summary: $validated['summary'],
-            description: $validated['description'] ?? null,
-            details: $validated['details'] ?? [],
-            stock: (int) $validated['stock'],
-            isActive: $this->boolean('is_active'),
-            isFeatured: $this->boolean('is_featured'),
-            prices: array_values(collect($validated['prices'])
-                ->map(fn (array $tier): PriceTierData => new PriceTierData((int) $tier['min_quantity'], Money::of($tier['unit_price'], $currency)))
-                ->sortBy(fn (PriceTierData $tier): int => $tier->minQuantity)
-                ->all()),
-        );
+        return ProductData::from($this->validated());
     }
 }

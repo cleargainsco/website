@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Shop\Contracts\OrderHistory;
 use Shop\Models\Product;
+use Shop\Models\ProductPrice;
 
 function productPayload(array $overrides = []): array
 {
@@ -35,6 +39,8 @@ describe('access', function () {
         $this->actingAs(User::factory()->customer()->create());
 
         $this->get(route('admin.products.index'))->assertForbidden();
+        $this->get(route('admin.products.create'))->assertForbidden();
+        $this->get(route('admin.products.edit', $product))->assertForbidden();
         $this->post(route('admin.products.store'), productPayload())->assertForbidden();
         $this->put(route('admin.products.update', $product), productPayload())->assertForbidden();
 
@@ -63,6 +69,20 @@ describe('index', function () {
 });
 
 describe('store', function () {
+    test('the add form opens in a sheet over the product list', function () {
+        researchPeptide()->priced()->create();
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.products.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/products/index')
+                ->where('sheet', 'create')
+                ->has('products', 1)
+                ->where('productTypes.0.key', 'research-peptide')
+                ->where('productTypes.0.fields.0.name', 'amount')
+                ->missing('product'));
+    });
+
     test('an admin creates a product with its details and price tiers', function () {
         $this->actingAs(User::factory()->admin()->create())
             ->post(route('admin.products.store'), productPayload())
@@ -119,7 +139,9 @@ describe('update', function () {
         $this->actingAs(User::factory()->admin()->create())
             ->get(route('admin.products.edit', $product))
             ->assertInertia(fn (Assert $page) => $page
-                ->component('admin/products/edit')
+                ->component('admin/products/index')
+                ->where('sheet', 'edit')
+                ->has('products', 1)
                 ->where('product.id', $product->public_id)
                 ->where('product.prices.1', ['min_quantity' => 6, 'unit_price' => '80.00']));
 
@@ -141,5 +163,140 @@ describe('update', function () {
 
         $this->get("/admin/products/{$product->id}/edit")->assertNotFound();
         $this->get("/admin/products/{$product->public_id}/edit")->assertOk();
+    });
+});
+
+describe('image', function () {
+    beforeEach(fn () => Storage::fake('public'));
+
+    test('an uploaded photo is turned into a scaled-down WebP with a thumbnail', function () {
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.products.store'), productPayload([
+                'image' => UploadedFile::fake()->image('vial.jpg', 3000, 1500),
+            ]))
+            ->assertRedirect(route('admin.products.index'));
+
+        $media = Product::query()->sole()->getFirstMedia(Product::IMAGE_COLLECTION);
+
+        expect($media->file_name)->toBe('alpha-10mg.webp')
+            ->and($media->mime_type)->toBe('image/webp')
+            ->and(getimagesizefromstring(Storage::disk('public')->get($media->getPathRelativeToRoot()))[0])->toBe(2000)
+            ->and(Storage::disk('public')->exists($media->getPathRelativeToRoot(Product::THUMBNAIL_CONVERSION)))->toBeTrue();
+    });
+
+    test('a new upload replaces the old image, and an edit without one keeps it', function () {
+        $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+        $this->actingAs(User::factory()->admin()->create());
+
+        $this->put(route('admin.products.update', $product), productPayload(['image' => UploadedFile::fake()->image('one.jpg')]));
+        $this->put(route('admin.products.update', $product), productPayload(['image' => UploadedFile::fake()->image('two.png')]));
+        $this->put(route('admin.products.update', $product), productPayload());
+
+        expect($product->refresh()->getMedia(Product::IMAGE_COLLECTION))->toHaveCount(1)
+            ->and(Storage::disk('public')->allFiles())->toHaveCount(2);
+    });
+
+    test('an admin can remove the image', function () {
+        $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+        $this->actingAs(User::factory()->admin()->create());
+
+        $this->put(route('admin.products.update', $product), productPayload(['image' => UploadedFile::fake()->image('one.jpg')]));
+        $this->put(route('admin.products.update', $product), productPayload(['remove_image' => '1']));
+
+        expect($product->refresh()->getMedia(Product::IMAGE_COLLECTION))->toBeEmpty()
+            ->and(Storage::disk('public')->allFiles())->toBeEmpty();
+    });
+
+    test('only images are accepted', function () {
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.products.store'), productPayload([
+                'image' => UploadedFile::fake()->create('coa.pdf', 100, 'application/pdf'),
+            ]))
+            ->assertSessionHasErrors('image');
+
+        expect(Product::query()->count())->toBe(0);
+    });
+
+    test('the list shows a thumbnail and the edit form shows the image', function () {
+        $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+        $this->actingAs(User::factory()->admin()->create());
+        $this->put(route('admin.products.update', $product), productPayload(['image' => UploadedFile::fake()->image('one.jpg')]));
+
+        $this->get(route('admin.products.edit', $product))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('products.0.thumbnail_url', fn (string $url) => str_ends_with($url, 'alpha-10mg-thumbnail.webp'))
+                ->where('product.image_url', fn (string $url) => str_ends_with($url, 'alpha-10mg.webp')));
+    });
+});
+
+describe('remove', function () {
+    test('a product nobody has ordered is deleted for good, with its prices and image', function () {
+        Storage::fake('public');
+        $product = researchPeptide()->priced([1 => 5000, 3 => 4500])->create(['slug' => 'alpha-10mg']);
+        $this->actingAs(User::factory()->admin()->create());
+        $this->put(route('admin.products.update', $product), productPayload(['image' => UploadedFile::fake()->image('one.jpg')]));
+
+        $this->get(route('admin.products.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('products.0.has_been_ordered', false));
+
+        $this->delete(route('admin.products.destroy', $product))
+            ->assertRedirect(route('admin.products.index'));
+
+        expect(Product::withTrashed()->count())->toBe(0)
+            ->and(ProductPrice::query()->count())->toBe(0)
+            ->and(Storage::disk('public')->allFiles())->toBeEmpty();
+    });
+
+    test('a product that has been ordered is archived instead, out of the list and the shop', function () {
+        app()->instance(OrderHistory::class, new class implements OrderHistory
+        {
+            public function hasBeenOrdered(Product $product): bool
+            {
+                return true;
+            }
+        });
+        $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+        $this->actingAs(User::factory()->admin()->create());
+
+        $this->delete(route('admin.products.destroy', $product))
+            ->assertRedirect(route('admin.products.index'));
+
+        expect($product->refresh()->trashed())->toBeTrue();
+
+        $this->get(route('admin.products.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('view', 'active')->has('products', 0));
+        $this->get(route('admin.products.archived.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('view', 'archived')
+                ->has('products', 1)
+                ->where('products.0.id', $product->public_id));
+        $this->get(route('shop.show', 'alpha-10mg'))->assertNotFound();
+        $this->get(route('admin.products.edit', $product))->assertNotFound();
+    });
+
+    test('an archived product can be restored', function () {
+        $product = researchPeptide()->priced()->create();
+        $product->delete();
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.products.restoration.store', $product))
+            ->assertRedirect(route('admin.products.archived.index'));
+
+        expect($product->refresh()->trashed())->toBeFalse();
+    });
+
+    test('customers cannot remove, restore or see archived products', function () {
+        $product = researchPeptide()->priced()->create();
+        $archived = researchPeptide()->priced()->create();
+        $archived->delete();
+
+        $this->actingAs(User::factory()->customer()->create());
+
+        $this->delete(route('admin.products.destroy', $product))->assertForbidden();
+        $this->post(route('admin.products.restoration.store', $archived))->assertForbidden();
+        $this->get(route('admin.products.archived.index'))->assertForbidden();
+
+        expect(Product::query()->whereKey($product->id)->exists())->toBeTrue()
+            ->and($archived->refresh()->trashed())->toBeTrue();
     });
 });

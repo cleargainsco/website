@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Shop;
 
 use Illuminate\Support\ServiceProvider;
+use Shop\Contracts\OrderHistory;
 use Shop\Contracts\PriceResolver;
+use Shop\Orders\NoOrderHistory;
 use Shop\Pricing\TieredPriceResolver;
 
 final class ShopServiceProvider extends ServiceProvider
@@ -19,6 +21,7 @@ final class ShopServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(PriceResolver::class, TieredPriceResolver::class);
+        $this->app->bind(OrderHistory::class, NoOrderHistory::class);
     }
 
     public function boot(): void

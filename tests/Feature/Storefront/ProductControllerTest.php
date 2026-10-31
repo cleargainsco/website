@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Shop\Models\Product;
 
@@ -67,6 +69,17 @@ describe('show', function () {
                 ->where('product.batches.0.report_url', asset('coas/alpha-a-002.pdf'))
                 ->has('related', 1)
                 ->where('related.0.slug', 'beta-5mg'));
+    });
+
+    it('includes the product photo when there is one', function () {
+        Storage::fake('public');
+        $product = Product::query()->where('slug', 'alpha-10mg')->sole();
+        $product->addMedia(UploadedFile::fake()->image('alpha.webp'))->toMediaCollection(Product::IMAGE_COLLECTION);
+
+        $this->get(route('shop.show', 'alpha-10mg'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('product.image_url', fn (string $url) => str_ends_with($url, 'alpha.webp'))
+                ->where('related.0.image_url', null));
     });
 
     it('returns 404 for an unknown or hidden product', function () {

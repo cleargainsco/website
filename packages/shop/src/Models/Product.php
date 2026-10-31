@@ -14,8 +14,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Shop\Database\Factories\ProductFactory;
 use Shop\Enums\StockStatus;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -32,13 +37,19 @@ use Shop\Enums\StockStatus;
  * @property int $sort_order
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
  * @property-read Collection<int, ProductPrice> $prices
+ * @property-read Collection<int, Media> $media
  */
 #[UseFactory(ProductFactory::class)]
-final class Product extends Model
+final class Product extends Model implements HasMedia
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, InteractsWithMedia, SoftDeletes;
+
+    public const string IMAGE_COLLECTION = 'image';
+
+    public const string THUMBNAIL_CONVERSION = 'thumbnail';
 
     protected $table = 'shop_products';
 
@@ -63,6 +74,32 @@ final class Product extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(ProductPrice::class)->orderBy('min_quantity');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::IMAGE_COLLECTION)->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion(self::THUMBNAIL_CONVERSION)
+            ->nonQueued()
+            ->format('webp')
+            ->fit(Fit::Crop, 160, 160);
+    }
+
+    /**
+     * Load `media` with the product: models are strict, so reading it lazily throws.
+     */
+    public function imageUrl(): ?string
+    {
+        return $this->getFirstMediaUrl(self::IMAGE_COLLECTION) ?: null;
+    }
+
+    public function thumbnailUrl(): ?string
+    {
+        return $this->getFirstMediaUrl(self::IMAGE_COLLECTION, self::THUMBNAIL_CONVERSION) ?: null;
     }
 
     public function stockStatus(): StockStatus

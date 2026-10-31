@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { StockBadge } from '@/components/marketing/stock-badge';
-import { VialLabel } from '@/components/marketing/vial-label';
+import { ProductVisual } from '@/components/marketing/product-visual';
 import { formatMoney } from '@/lib/money';
 import { show } from '@/routes/shop';
 import type { Product } from '@/types/storefront';
@@ -13,7 +13,7 @@ export function ProductCard({ product }: { product: Product }) {
             href={show(product.slug)}
             className="group flex flex-col rounded-3xl bg-white p-3 ring-1 ring-charcoal/5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-deep-ocean/10"
         >
-            <VialLabel name={product.name} amount={product.amount} />
+            <ProductVisual product={product} />
             <div className="flex flex-1 flex-col px-2 pt-5 pb-2">
                 <div className="flex items-start justify-between gap-4">
                     <div>

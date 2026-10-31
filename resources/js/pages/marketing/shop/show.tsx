@@ -6,7 +6,7 @@ import { ProductCard } from '@/components/marketing/product-card';
 import { ResearchUseNotice } from '@/components/marketing/research-use-notice';
 import { StockBadge } from '@/components/marketing/stock-badge';
 import { TierPicker } from '@/components/marketing/tier-picker';
-import { VialLabel } from '@/components/marketing/vial-label';
+import { ProductVisual } from '@/components/marketing/product-visual';
 import { brandButton } from '@/lib/brand-button';
 import { formatMoney } from '@/lib/money';
 import { testing } from '@/routes';
@@ -51,9 +51,8 @@ export default function ShopShow({
             <section className="mx-auto grid max-w-7xl gap-12 px-6 py-10 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-14">
                 <div className="lg:sticky lg:top-28 lg:self-start">
                     <div className="rounded-[2rem] bg-sand/50 p-6 sm:p-10">
-                        <VialLabel
-                            name={product.name}
-                            amount={product.amount}
+                        <ProductVisual
+                            product={product}
                             className="mx-auto max-w-md shadow-2xl shadow-deep-ocean/15"
                         />
                     </div>

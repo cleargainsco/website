@@ -20,6 +20,7 @@ export type Product = {
     name: string;
     amount: string;
     summary: string;
+    image_url: string | null;
     stock: StockStatus;
     storage: string;
     featured: boolean;
