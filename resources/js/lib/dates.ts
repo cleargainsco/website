@@ -11,3 +11,11 @@ export function formatDateTime(isoDateTime: string): string {
         timeStyle: 'short',
     }).format(new Date(isoDateTime));
 }
+
+export function formatShortDate(isoDate: string): string {
+    return new Intl.DateTimeFormat(undefined, {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+    }).format(new Date(`${isoDate.slice(0, 10)}T00:00:00Z`));
+}
