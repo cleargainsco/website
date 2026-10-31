@@ -1,7 +1,7 @@
 ---
 paths:
-  - 'app/Enums/**'
-  - 'app/Policies/**'
+    - 'app/Enums/**'
+    - 'app/Policies/**'
 ---
 
 # Permission Naming Convention
@@ -28,29 +28,29 @@ Measured from `app/Enums/Permission.php`, 2026-09-09, plus those the LL-62 stack
 adds (`bookings.viewAny` on #37, `bookings.create` and `bookings.update` on #42,
 `lastLooks.withdraw` on #77):
 
-| Enum case | Value |
-|---|---|
-| `BookingsIntake` | `bookings.intake` |
-| `BookingsViewAny` | `bookings.viewAny` |
-| `BookingsCreate` | `bookings.create` |
-| `BookingsUpdate` | `bookings.update` |
+| Enum case                | Value                     |
+| ------------------------ | ------------------------- |
+| `BookingsIntake`         | `bookings.intake`         |
+| `BookingsViewAny`        | `bookings.viewAny`        |
+| `BookingsCreate`         | `bookings.create`         |
+| `BookingsUpdate`         | `bookings.update`         |
 | `BookingsAssignSalesRep` | `bookings.assignSalesRep` |
-| `LastLooksViewAny` | `lastLooks.viewAny` |
-| `LastLooksCreate` | `lastLooks.create` |
-| `LastLooksSend` | `lastLooks.send` |
-| `LastLooksWithdraw` | `lastLooks.withdraw` |
-| `LastLooksAward` | `lastLooks.award` |
-| `LastLooksViewInvited` | `lastLooks.viewInvited` |
-| `BidsViewAny` | `bids.viewAny` |
-| `BidsViewOwn` | `bids.viewOwn` |
-| `BidsSubmit` | `bids.submit` |
-| `OperatorsViewAny` | `operators.viewAny` |
-| `OperatorsApprove` | `operators.approve` |
-| `OperatorTailsApprove` | `operatorTails.approve` |
-| `FleetManage` | `fleet.manage` |
-| `ReportsExport` | `reports.export` |
-| `OrganizationsManage` | `organizations.manage` |
-| `UsersManage` | `users.manage` |
+| `LastLooksViewAny`       | `lastLooks.viewAny`       |
+| `LastLooksCreate`        | `lastLooks.create`        |
+| `LastLooksSend`          | `lastLooks.send`          |
+| `LastLooksWithdraw`      | `lastLooks.withdraw`      |
+| `LastLooksAward`         | `lastLooks.award`         |
+| `LastLooksViewInvited`   | `lastLooks.viewInvited`   |
+| `BidsViewAny`            | `bids.viewAny`            |
+| `BidsViewOwn`            | `bids.viewOwn`            |
+| `BidsSubmit`             | `bids.submit`             |
+| `OperatorsViewAny`       | `operators.viewAny`       |
+| `OperatorsApprove`       | `operators.approve`       |
+| `OperatorTailsApprove`   | `operatorTails.approve`   |
+| `FleetManage`            | `fleet.manage`            |
+| `ReportsExport`          | `reports.export`          |
+| `OrganizationsManage`    | `organizations.manage`    |
+| `UsersManage`            | `users.manage`            |
 
 Note the resource segment is **camelCase where it is two words**
 (`lastLooks`, not `last_looks` or `lastlooks`), and the action segment is the
@@ -60,14 +60,14 @@ method name a policy would use (`viewAny`, not `view_any`).
 
 Use the Laravel policy vocabulary where the action is CRUD-shaped:
 
-| Action | Meaning |
-|--------|---------|
-| `viewAny` | List/index access |
-| `view` | Single record access |
-| `create` | Create new records |
-| `update` | Modify existing records |
-| `delete` | Soft delete (archive) |
-| `restore` | Restore soft-deleted |
+| Action    | Meaning                 |
+| --------- | ----------------------- |
+| `viewAny` | List/index access       |
+| `view`    | Single record access    |
+| `create`  | Create new records      |
+| `update`  | Modify existing records |
+| `delete`  | Soft delete (archive)   |
+| `restore` | Restore soft-deleted    |
 
 ## Domain-specific actions
 
@@ -78,7 +78,7 @@ Where the operation is not CRUD, the action segment names the domain verb —
 - **Permissions name domain ACTIONS, not transports.** Split when you would
   plausibly grant one and withhold the other; never because one arrives over a
   bearer token and the other over a session (see the last section).
-- **A distinction that is about *whose rows*, not *what kind of action*, is
+- **A distinction that is about _whose rows_, not _what kind of action_, is
   not a permission.** That is the global scope's job — see
   [`scopes.md`](scopes.md) and [`domains.md`](domains.md). `bids.viewAny`
   versus `bids.viewOwn` is the deliberate exception: those really are two
@@ -88,10 +88,10 @@ Where the operation is not CRUD, the action segment names the domain verb —
 
 Convert the value to PascalCase, dropping the dots:
 
-| Permission value | Enum case |
-|-----------------|-----------|
-| `lastLooks.viewAny` | `LastLooksViewAny` |
-| `bids.viewOwn` | `BidsViewOwn` |
+| Permission value       | Enum case             |
+| ---------------------- | --------------------- |
+| `lastLooks.viewAny`    | `LastLooksViewAny`    |
+| `bids.viewOwn`         | `BidsViewOwn`         |
 | `organizations.manage` | `OrganizationsManage` |
 
 ❌ **Bad:**
@@ -146,6 +146,7 @@ Deploys are already covered: `ReferenceDataSeeder` calls `RoleSeeder` then
 local-database-lag problem only.
 
 ## One Permission enum for both token and session callers
+
 There is no separate API permission enum, and there must not be. `Organization::canHold()` refuses to issue a token for an ability no role at that audience holds — that is what makes "an operator can never be issued an intake token" true by construction, and it only works because token abilities and role permissions are drawn from the same vocabulary. Split the enum and the invariant has nothing to compare against.
 
 Permissions name domain ACTIONS, not transports. Split when you would plausibly grant one and withhold the other; never because one arrives over a bearer token and the other over a session. `bookings.intake` is separate from the desk's manual create and correction — `bookings.create` and `bookings.update` (#42), both held by Broker Admin — for that reason and not because it is the API one: per ADR 0003 an API booking is signed by construction while a manual one relies on desk discipline, so they are separately grantable.

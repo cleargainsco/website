@@ -45,10 +45,10 @@ thing it acts on is a resource in its own right — give it a controller named f
 that noun and route it with a REST verb. This is the owner's standing
 instruction (2026-09-09), illustrated by Dan's LL-66 refactor:
 
-| Was | Now |
-| --- | --- |
-| `OperatorInvitationController@storeOperator` | `OperatorController@store` — `POST /operators` |
-| `OperatorInvitationController@candidates` | `InvitationCandidateController@index` — `GET /invitations/candidates` |
+| Was                                                                              | Now                                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OperatorInvitationController@storeOperator`                                     | `OperatorController@store` — `POST /operators`                                                                                                                                                                                                                                            |
+| `OperatorInvitationController@candidates`                                        | `InvitationCandidateController@index` — `GET /invitations/candidates`                                                                                                                                                                                                                     |
 | `BookingLookupController@tails` / `@operators` / `@airports` / `@aircraftModels` | `TailSearchController@index`, `OperatorSearchController@index`, `AirportSearchController@index`, `AircraftModelSearchController@index` — `GET /search/{tails,operators,airports,aircraft-models}` (#35; moved from `/bookings/lookup/*`, which named the screen rather than the resource) |
 
 The invitation controller had grown two verbs that were really two nouns —
@@ -121,16 +121,16 @@ into `null`. Truthiness is no substitute — `['x']` is truthy and still throws,
 
 These hold only AFTER validation, never inside `prepareForValidation()`:
 
-| Rule | Guaranteed Type | When It Applies |
-|------|-----------------|-----------------|
-| `'string'` | string | Always, after validation |
-| `'email'` | string | Always, after validation |
-| `'integer'` | int | After validation |
-| `'numeric'` | float or int | After validation |
-| `'boolean'` | bool | After validation (converts 1/0, true/false, "1"/"0") |
-| `'array'` | array | After validation |
-| `'required'` | Not null | Always, after validation |
-| `'nullable'` | string or null | After validation |
+| Rule         | Guaranteed Type | When It Applies                                      |
+| ------------ | --------------- | ---------------------------------------------------- |
+| `'string'`   | string          | Always, after validation                             |
+| `'email'`    | string          | Always, after validation                             |
+| `'integer'`  | int             | After validation                                     |
+| `'numeric'`  | float or int    | After validation                                     |
+| `'boolean'`  | bool            | After validation (converts 1/0, true/false, "1"/"0") |
+| `'array'`    | array           | After validation                                     |
+| `'required'` | Not null        | Always, after validation                             |
+| `'nullable'` | string or null  | After validation                                     |
 
 ### When Manual Type Checks ARE Needed
 
@@ -152,6 +152,7 @@ Manual type checks are only needed when:
 Guard in `prepareForValidation()`; no check on `validated()` or downstream.
 
 ## A FormRequest exists to validate input; where there is one, it carries the policy
+
 SETTLED 2026-09-19, and this section argued BOTH sides until then — its heading said
 `authorize()` returns `true` and the controller asks the policy, while its last paragraph
 said the request answers it and the controller does not ask again. Two rules, one section.
@@ -203,11 +204,13 @@ Two still do not override `authorize()`, for a reason: `StoreUserRequest` and
 `UpdateUserRequest` are the 404-first case above. Nothing is unguarded.
 
 ## Custom messages live in the request's `messages()` / `attributes()`
+
 When a rule
 needs a human message or a field a better name, override `messages()` /
 `attributes()` on that FormRequest rather than editing `lang/*/validation.php`.
 
 ## Reading validated input: hand the Action a `Data` object, not an array
+
 SETTLED (2026-09-11), superseding the note that stood here. Two shapes were in
 play and the note left the choice open: handing the Action `$request->validated()`
 — the array — or the eleven older sites in `UserController` and

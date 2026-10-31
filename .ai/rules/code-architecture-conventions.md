@@ -10,16 +10,19 @@ Core patterns for maintainable Laravel code: DRY, validation separation, action 
 ## Standards
 
 ### DRY (Don't Repeat Yourself)
+
 - Extract shared logic into utility methods, model accessors, or injected collaborators
 - Avoid copy-pasting similar code across files
 
 ### Prefer Composition Over Inheritance
+
 - Domain classes should be `final readonly` implementing interfaces, not extending abstract base classes
 - Helper methods that convert data formats (e.g., cents-to-dollars) belong in model accessors, not shared base classes
 - If multiple classes need the same collaborator, inject it via constructor (composition) rather than inheriting it
 - **Exception:** The Strategy Pattern in `app/Handlers/` may use abstract base classes when a template method pattern is genuinely needed
 
 ### Validation in Its Own Place
+
 - Use `FormRequest` classes for controller validation (`app/Http/Requests/`)
 - Handlers/strategies can provide validation rules, but FormRequest applies them
 - Never validate **input** in controllers or action classes. Shape, type, presence and
@@ -48,27 +51,32 @@ check too, never instead: `BookingFormRequest` compares the form version "first,
 message", and `UpdateBookingAction` compares it again under the lock.
 
 ### Action Classes
+
 - Business logic belongs in single-purpose Action classes (`app/Actions/`)
 - Controllers delegate to actions, never contain business logic
 - Actions are `final readonly` with a single `handle()` method (or specific verbs like `request()`, `approve()`)
 
 ### No Service Classes
+
 - **Don't:** Create fat `*Service` classes that accumulate miscellaneous business logic
 - **Do:** Use Action classes for business operations
 - **Exception:** `app/Services/` is reserved for external API integrations (Slack, Aviowiki, etc.)
 
 ### Jobs and Notifications
+
 - `app/Jobs/{Subject}/{Verb}{Noun}Job.php`, `ShouldQueue` — jobs are grouped by subject (`Jobs/JetNet`). Every job carries the `Job` suffix; a name without it is wrong.
 - `app/Notifications/{Feature}/{Event}Notification.php` — a notification sits flat at the root while its feature has only one or two, and moves into a feature folder (`Notifications/Quotes`, `Notifications/Reminders`) once it has more; custom channels in `Notifications/Channels/`, message value objects in `Notifications/Messages/`, helpers for composing a message in `Notifications/Concerns/`.
 - A message renders itself for every channel (`AlertMessage::toMail()`, `AlertMessage::toSlack()`), so each `to{Channel}()` on a notification builds the message and asks it to render. The rendering never sits in a trait the notifications share.
 - Model lifecycle hooks are Observers in `app/Observers/` (none here yet); custom Eloquent casts are in `app/Casts/` (`MoneyObjectCast`) — see [`models.md`](models.md).
 
 ### Act on a failure where your code catches it
+
 - When code you own catches a failure, act on it there and rethrow: `SlackWebApiChannel` catches Slack's refusal and records it through `RecordSlackRejectionAction`.
 - Do not route your own failure through a framework event and an auto-discovered listener. Nothing at the throw site says the listener exists, and an exception inside it replaces the one it was handling. A `NotificationFailed` listener did this job until LL-117's review.
 - A listener is for an event something else raises (`MessageLogged`, `CommandStarting` in `AppServiceProvider`).
 
 ### Strategy Pattern for Polymorphism
+
 - Use `app/Handlers/` for strategy pattern implementations
 - Handlers implement a contract interface
 - Registry pattern coordinates handler lookup
@@ -77,6 +85,7 @@ message", and `UpdateBookingAction` compares it again under the lock.
 ## Examples
 
 ✅ **Good:**
+
 ```php
 // Action class for business logic
 final readonly class ApproveServiceAction {
@@ -102,6 +111,7 @@ final class BlackCarHandler extends AbstractServiceHandler { }
 ```
 
 ❌ **Bad:**
+
 ```php
 // Fat service class (don't do this)
 class BookingService {

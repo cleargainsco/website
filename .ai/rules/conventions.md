@@ -47,10 +47,10 @@ SETTLED, AND NO LONGER A QUESTION — do not reopen these:
 
 Still open, because both shapes really are in the tree:
 
-| Topic | Current shape | The alternative | File |
-| --- | --- | --- | --- |
-| Controllers | seven resource actions only (owner's call) | the three custom verbs that predate the rule — `own`, `deactivate`, `ping` | [`http.md`](http.md) |
-| Older migrations' `down()` | empty and forward-only from 2026-09-09 on | the 37 pre-rule files keep a real `down()` | [`migrations.md`](migrations.md) |
+| Topic                      | Current shape                              | The alternative                                                            | File                             |
+| -------------------------- | ------------------------------------------ | -------------------------------------------------------------------------- | -------------------------------- |
+| Controllers                | seven resource actions only (owner's call) | the three custom verbs that predate the rule — `own`, `deactivate`, `ping` | [`http.md`](http.md)             |
+| Older migrations' `down()` | empty and forward-only from 2026-09-09 on  | the 37 pre-rule files keep a real `down()`                                 | [`migrations.md`](migrations.md) |
 
 Before planning or editing, read every rule whose `paths:` cover the file you
 are about to touch — Claude Code does this for you, and `index.md` lists them

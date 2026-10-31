@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/Http/Requests/**'
+    - 'app/Http/Requests/**'
 ---
 
 # Requests
 
 ## Prefer FormRequest::authorize() for writes; the controller is right for reads
+
 Where a route takes a FormRequest, prefer putting the policy check in `authorize()`. Keeping `$this->authorize()` in the controller as well is fine and often clearer — they call the same policy method, so there is one definition and nothing to drift. This is a preference, not a mandate.
 
 Why the request is the better home for a write: Laravel resolves `authorize()` before `rules()`, whereas a controller's `$this->authorize()` runs after the whole FormRequest has resolved. With the check only in the controller, somebody with no business on the endpoint gets a 422 listing every field name before anything asks whether they may be there — handing out the shape of a form to a caller who should learn only "not for you". On this platform, which companies exist and which are being recruited is confidential (AC14.4).

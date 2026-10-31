@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'app/Policies/**'
+    - 'app/Policies/**'
 ---
 
 # Policies
@@ -32,6 +32,7 @@ Which layer applies is a settled decision here, and it differs by surface:
 reach them. That has a consequence the next section is about.
 
 ## Gate::before makes policies advisory for platform staff — put invariants elsewhere
+
 AuthServiceProvider's `Gate::before` answers true for every ability a Super Admin **or Platform Admin** is asked about. Both roles therefore skip policies entirely, and they are the only people who reach the platform-side screens — so a rule written into a policy method there is skipped by everyone it was written for.
 
 Permissions belong in policies. Domain invariants do not. `OrganizationPolicy::delete` answers only `organizations.manage`; "an organization with people on it cannot be deleted" lives in `DeleteOrganizationAction`, which every writer goes through, and on `Organization::hasPeople()`.

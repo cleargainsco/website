@@ -25,12 +25,12 @@ missing boundary upstream.
 
 ## The boundaries that exist in this project
 
-| Boundary | What arrives dirty | Who owns the cleanup |
-|---|---|---|
-| **Vendor API** (JETNET, AvioWiki) | sentinel values the type does not express — `'unknown'` where a float belongs, `''`, `0` for an unknown count, a phone written in one of two incompatible schemes | the `*Data` object's cast or `prepareForPipeline()`; see [`services.md`](services.md) |
-| **HTTP form input** | leading/trailing whitespace, `\r\n` from textareas, mixed-case email, pasted unicode | whitespace: the global `TrimStrings` middleware, before any FormRequest runs (below); everything else: the FormRequest's `prepareForValidation()`, see [`http.md`](http.md) |
-| **Phone numbers, anywhere** | national vs international notation | `App\Support\E164` on the way in; see [`support.md`](support.md) |
-| **Seed / reference data** | inconsistent casing, stray whitespace | the seeder, before insert; see [`seeders.md`](seeders.md) |
+| Boundary                          | What arrives dirty                                                                                                                                                | Who owns the cleanup                                                                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vendor API** (JETNET, AvioWiki) | sentinel values the type does not express — `'unknown'` where a float belongs, `''`, `0` for an unknown count, a phone written in one of two incompatible schemes | the `*Data` object's cast or `prepareForPipeline()`; see [`services.md`](services.md)                                                                                       |
+| **HTTP form input**               | leading/trailing whitespace, `\r\n` from textareas, mixed-case email, pasted unicode                                                                              | whitespace: the global `TrimStrings` middleware, before any FormRequest runs (below); everything else: the FormRequest's `prepareForValidation()`, see [`http.md`](http.md) |
+| **Phone numbers, anywhere**       | national vs international notation                                                                                                                                | `App\Support\E164` on the way in; see [`support.md`](support.md)                                                                                                            |
+| **Seed / reference data**         | inconsistent casing, stray whitespace                                                                                                                             | the seeder, before insert; see [`seeders.md`](seeders.md)                                                                                                                   |
 
 ### HTTP whitespace is trimmed once, by the middleware
 
@@ -61,7 +61,7 @@ CRLF → LF, `strip_tags()`, reshaping a structure. Phones keep their own row ab
 
 Never:
 
-- ❌ In an Eloquent `Attribute::make(get: ...)` accessor — the *read* side. A cast's `set()` is the write side and is fine (above).
+- ❌ In an Eloquent `Attribute::make(get: ...)` accessor — the _read_ side. A cast's `set()` is the write side and is fine (above).
 - ❌ In a Resource (`toArray()`).
 - ❌ In a controller on the way out, an Inertia prop, or a query class.
 - ❌ Inline at every read site (`trim($model->field)` scattered around).
@@ -80,7 +80,7 @@ for everything not lifted into a column. Cleaning happens one table further on,
 in `DeriveOperatorsAction`, which reads no API.
 
 This does not contradict the rule — it relocates the boundary. The mirror is
-not the app's data, it is a *snapshot of what the vendor said*, and its write
+not the app's data, it is a _snapshot of what the vendor said_, and its write
 boundary is "record faithfully". `jetnet_operators` is the app's data, and
 `toRow()` is its write boundary — which is why `jetnet_operators.office` and
 `mobile` hold E.164 while the tail rows hold the vendor string.
@@ -181,7 +181,7 @@ that **reads** a model attribute, `*Data` field or query result:
 
 When you are about to **write** an external value:
 
-1. Normalize *once*, in the boundary code, before it enters a `*Data` object
+1. Normalize _once_, in the boundary code, before it enters a `*Data` object
    or a model.
 2. Persist the normalized form — or, for a vendor mirror, persist verbatim and
    normalize in the derived table.

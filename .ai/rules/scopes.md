@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/Models/Scopes/**'
+    - 'app/Models/Scopes/**'
 ---
 
 # Scopes
 
 ## Tenancy is a global scope asking OrganizationPrincipal, never a per-query filter
+
 LastLook, Trip, TripLeg and Bid carry global scopes (`#[ScopedBy]`). Never add `->where('operator_id', ...)` "to be safe": the scope is either working (the clause is noise) or broken (the clause hides it from the test that would catch it). A query whose organization is genuinely its ARGUMENT is the exception, not a safety copy — `UsersQuery` qualifies because `User` carries no global scope at all, so its `where` is the only boundary there is. `BookingsBoardQuery` was written that way and was corrected: `Booking` DOES carry `BookingScope`, so the argument was a second copy, and the board's tests said so — "these would pass with no scope at all". This scope applying nothing for a null principal is not a reason to add one back; those paths serve no response, and the principal that reaches a response without being constrained is platform staff, refused at the route ([`domains.md`](domains.md)).
 
 The principal is resolved through App\Contracts\OrganizationPrincipal, implemented by User (organization_id) and Organization (itself, on the sanctum guard). Use `Auth::guard()->user()`, not `Auth::user()` — Larastan narrows the facade to the web guard's provider model and erases the Organization case. A null principal (console, queue, seeder) is UNCONSTRAINED on purpose; those paths serve no response.
@@ -15,13 +16,14 @@ Two audiences reach a LastLook differently and this is the whole difficulty: the
 BidScope uses a RAW EXISTS against `last_looks`, never `whereHas('lastLook')`. whereHas applies the related model's scopes, and LastLookScope admits an operator to every look they qualify for — so the idiomatic-looking version returns every rival bid on that auction, which is exactly the AC14.4 disclosure the class exists to prevent. TripLegScope does the opposite (`whereHas('trip')`) deliberately: a leg's visibility IS its trip's, a bid's is not its LastLook's.
 
 ## An operator reaches a LastLook by qualifying, not by having been invited
+
 SETTLED 2026-09-18 with product, replacing the rule that read "an operator only through `last_look_invitations`". Three branches admit, and one excludes over all of them:
 
-| Branch | Admits | For how long |
-| --- | --- | --- |
-| `last_looks.broker_id` | the desk that owns it | always |
-| an EXISTS on `bids` | an operator who bid | always, window shut and fleet gone |
-| status `open` AND a qualifying fleet | any eligible operator | only while the window is open |
+| Branch                               | Admits                | For how long                       |
+| ------------------------------------ | --------------------- | ---------------------------------- |
+| `last_looks.broker_id`               | the desk that owns it | always                             |
+| an EXISTS on `bids`                  | an operator who bid   | always, window shut and fleet gone |
+| status `open` AND a qualifying fleet | any eligible operator | only while the window is open      |
 
 `last_look_invitations` GRANTS NOTHING. It is the record of who was alerted at send — an audit of what happened, read by the broker's screens and by nothing that decides access. An operator alerted at send who has since stood the fleet down sees nothing; one who added a qualifying tail an hour into the window sees it and may bid.
 

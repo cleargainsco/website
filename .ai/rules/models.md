@@ -16,6 +16,7 @@ Because nothing is guarded, `Model::create()` / `fill()` will set whatever you h
 Enforced by tests/Architecture/ModelsTest.php.
 
 ## Write with `fill()`; `forceFill()` forces past a guard that is not there
+
 Mass assignment is disabled globally, so `forceFill()` — `static::unguarded(fn () => $this->fill(...))` — wraps an unguard inside an unguard. Measured: `Model::$unguarded` is `true` at runtime, and `fill()` sets an attribute without throwing even though `preventsSilentlyDiscardingAttributes()` is also true, because `isFillable()` short-circuits on `$unguarded` before the discard check is reached.
 
 It is not merely redundant. `forceFill` READS as "there is protection here and I am deliberately going past it", which is the same false guarantee the section above forbids `$fillable` for. Seventy-five sites said that; none of them meant it.
@@ -23,6 +24,7 @@ It is not merely redundant. `forceFill` READS as "there is protection here and I
 Neither one excuses `$request->all()`. What keeps user input out of a column is the FormRequest — `validated()` returns only keys that have rules ([`http.md`](http.md)) — and that is unchanged by which of the two you call.
 
 ## An organization's type is immutable after creation
+
 `Organization::$type` is set once, at creation. An `updating` guard on the model throws `OrganizationTypeImmutable` on any change.
 
 The type is what every authorization decision about the organization's users derives from: which panel they reach (`EnsureOrganizationType`) and which roles they may hold (`RoleName::organizationType()`, enforced by `User::assignRole()`). That role guard runs at assignment and never again, so re-typing an organization re-checks nobody — a broker turned operator leaves its users holding `Broker Admin`, and so still carrying `lastLooks.award` and `bids.viewAny`, which AC14.4 forbids in an operator context.
@@ -32,6 +34,7 @@ Do not add a type field to an organization edit form. Converting an organization
 A query-builder `update()` bypasses model events and so bypasses this guard. Write through the model.
 
 ## Models exposed in URLs are addressed by `public_id`, not primary key
+
 `Organization` carries a `public_id` column alongside its integer primary key: `use HasUlids` with `uniqueIds()` returning `['public_id']` (so the PK stays an auto-incrementing int that foreign keys join on) and `getRouteKeyName()` returning `'public_id'`.
 
 The column is named for its job, not its format. It holds a ULID today; `public_id` means a later change of format is a change of value rather than a rename reaching every query, payload and generated route type. Every table that exposes a record externally uses this one name — the 8 schema-review tables (bookings, trips, bids, …) already did, and `users`/`organizations` were renamed off `ulid` to match.
@@ -47,6 +50,7 @@ Apply the same to any model that will appear in a URL for a broker or operator (
 `User` carries one too, for the same reason.
 
 ## Group models by concern; avoid domain-word collisions when naming the group
+
 Models are grouped into subdirectories by what they are about, and the factory namespace mirrors it exactly (`App\Models\System\ConsoleCommandRun` -> `Database\Factories\System\ConsoleCommandRunFactory`). No model declares `newFactory()`; the convention does the resolving, so moving a model means moving its factory in the same commit or the factory silently stops resolving.
 
 `Models/JetNet/` mirrors an external source. `Models/System/` holds records the app keeps about its own machinery rather than about the business — `ConsoleCommandRun` (what ran, from a command OR a queued job) and `SyncWatermark` (how far a sync got). Core domain models (`User`, `Organization`, `Airport`) stay flat.
@@ -54,6 +58,7 @@ Models are grouped into subdirectories by what they are about, and the factory n
 Do not name a group after a word the domain already uses. `Operations` was rejected because `RoleName::BrokerOperations` is a real role and "operator" is an organization type; `Platform` is taken by the platform-admin audience. `Console` was rejected too — it would be a lie, since jobs write `ConsoleCommandRun` rows and an Action writes `SyncWatermark`.
 
 ## Dates are CarbonImmutable; cast every non-string column including foreign keys
+
 config/essentials.php sets `ImmutableDates => true`, so every date cast returns `Carbon\CarbonImmutable`. Docblocks must say `CarbonImmutable`, not `Illuminate\Support\Carbon` — the latter is a different, MUTABLE class that CarbonImmutable does not extend, so the docblock advertises `->addDay()` mutating in place when it does not.
 
 Cast every column whose PHP type differs from what the driver returns: dates, enums, booleans, integers, decimals, JSON. That includes FOREIGN KEYS. `@property int $operator_id` is a claim, and whether a driver hands back 6 or "6" is a PDO configuration detail — SQLite and MySQL with native prepares return ints, emulated prepares return strings. Identity comparisons here are strict, so an uncast key is a `===` that answers differently on different connections.
@@ -63,6 +68,7 @@ Do NOT cast plain string columns. `'string'` is a no-op on a value that is alrea
 Money columns are the exception to "cast every non-string column" being the whole story: see "Money columns cast through MoneyCast" below for what the cast does and does not promise.
 
 ## Money columns cast through MoneyCast
+
 This SUPERSEDES the former rule that money must never be cast to a Money object.
 
 THE CAST IS KEYED ON AN ATTRIBUTE AND WRITES THE `_minor` COLUMN. `'incumbent_cost' => MoneyCast::of('currency')` persists into `incumbent_cost_minor`. Use `MoneyCast::fixed('EUR')` for a column that is always one currency — named separately rather than overloading `of()` on whether the argument looks like an ISO code. Each name then means exactly one thing:
@@ -98,17 +104,19 @@ VALIDATE USER INPUT WITH `App\Rules\ValidMoney`, which refuses exactly what the 
 ```
 
 ## Model events go in an Observer, registered with `#[ObservedBy]`
+
 Lifecycle hooks live in `app/Observers/{Model}Observer.php` and the
 model declares `#[ObservedBy(XObserver::class)]`. Nothing here has an observer
 yet; the one `booted()` — `Organization`'s type-immutability guard above —
 predates the rule. Write the next lifecycle hook as an observer.
 
-This is about *lifecycle* hooks. Business logic that needs an input a hook
+This is about _lifecycle_ hooks. Business logic that needs an input a hook
 cannot see (an admin's email address) stays in the Action —
 [`actions.md`](actions.md) records why the organization + admin pairing is not
 an observer, and that still holds.
 
 ## Custom Eloquent casts live in `app/Casts/`
+
 Reach for a cast whenever a column has one canonical stored form and more than
 one writer — the cast's `set()` is where the normalisation happens
 ([`normalize-on-write.md`](normalize-on-write.md)). `MoneyObjectCast` is the first one here; the cast under
@@ -116,6 +124,7 @@ one writer — the cast's `set()` is where the normalisation happens
 stays with its vendor.
 
 ## Eager-load explicitly; strict mode is on
+
 `ShouldBeStrict` (lazy loading throws) and `AutomaticallyEagerLoadRelationships`
 are both on in `config/essentials.php`. Eager-load explicitly anyway — `->with()`
 at the query, never a model-level `$with`: the automatic loader only covers a relation reached
@@ -124,6 +133,7 @@ screen needs. Resources guard relations with `whenLoaded()` for the same reason
 ([`resources.md`](resources.md)).
 
 ## Money is a Brick `Money`, cast from minor units in the row's own currency
+
 Adopted on 2026-09-09 (`feat/brick-money-cast`, pending
 merge): every `*_minor` column is cast through `App\Casts\MoneyObjectCast`
 with the row's `currency` column — `'net_price_minor' =>
@@ -136,6 +146,7 @@ an unsigned bigint of minor units beside a `char(3)` `currency` column, cast the
 same way; never a decimal, never a float.
 
 ## Enum comparisons live behind a named model predicate, never inline
+
 Never write `$model->status === SomeEnum::Case` at a call site — not in a controller, an action, a query, a policy, or another method on the same model. Add a public predicate to the model (`isSent()`, `isActive()`, `isApproved()`) and call that everywhere, including from other methods on the model itself.
 
 Why: the comparison is a domain question ("is this claimable?"), and spelling it out inline copies that question to every call site. When a state splits or a case is renamed, an inline `===` is a grep across the app that misses the one in a Blade file; a predicate is one edit. It also lets a compound rule compose from named parts — `isClaimable()` is `isSent() && ! isExpired()`, which reads as the rule it encodes.
@@ -145,6 +156,7 @@ Applies to `!==` too, and to a status held on a related model: `Organization::ma
 Existing examples: `Organization::isType()`, `Organization::isActive()`, `OperatorInvitation::isSent()`, `OperatorProfile::isApproved()`.
 
 ## Model $attributes defaults hold the enum case, not ->value
+
 Write `protected $attributes = ['status' => SomeEnum::Case]`, not `SomeEnum::Case->value`.
 
 Some models carry a comment claiming the case "would sit uncast in the attribute array and fail at insert". That is wrong, verified against Laravel 13.30 and the stored column. Property defaults do bypass `setAttribute`, so the instance really does sit in `$this->attributes` — but both sides handle it: `Query\Builder::cleanBindings()` maps every binding through `enum_value()` before PDO sees it, and `getEnumCastableAttributeValue()` returns an already-enum value untouched on the way back. The raw column ends up holding the backed value either way.

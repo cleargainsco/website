@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'database/migrations/**'
+    - 'database/migrations/**'
 ---
 
 # Migrations
@@ -92,6 +92,7 @@ defaults (`->default(...)`, next section), primary keys, foreign keys, indexes,
 unique constraints — plus the one value remap the exception above allows.
 
 ## Column defaults are written in the migration
+
 A column's default is
 declared in the migration, where the schema is the single place that states it.
 The rule this file carried until 2026-09-09 forbade that in favour of defaults in
@@ -114,6 +115,7 @@ on, so an alert added later reaches everybody until they say otherwise: store
 opt-outs, not opt-ins, wherever a new option should default on.
 
 ## Enum-valued columns are `string()` with a backed-enum cast, never `->enum()`
+
 Cast to PHP enums on the model (9 casts here). No database `enum()` column
 exists here, and none should be added.
 A DB enum makes adding a case a migration against a live table and hides the
@@ -122,6 +124,7 @@ single source ([`naming-conventions.md`](naming-conventions.md) Rule 9 for case
 naming).
 
 ## Time columns are plain timestamp holding UTC, never timestampTz
+
 Use `$table->timestamp(...)`. Never `timestampTz`.
 
 The app runs on `UTC` (config/app.php), so Laravel writes a datetime literal with no offset. Postgres interprets such a literal for a `timestamptz` column in whatever timezone the DB session happens to hold — it round-trips correctly through Eloquent while storing the wrong instant, and any other client sees the error. Plain `timestamp` stores exactly what is sent.
@@ -133,6 +136,7 @@ A column holding a LOCAL date or time is the exception and must carry a `_local`
 No timezone column on a domain table. Zones are read from `airports.timezone` through the FK.
 
 ## Do not index a low-cardinality flag on a small table
+
 No index on a boolean or a status whose values are overwhelmingly one value — `needs_review`, `needs_category_review` and similar. Postgres will seq-scan for the common value anyway, and the rare-value query is an admin queue on a table of hundreds to low thousands of rows where a scan is free. The index costs a write on every insert and update and buys nothing.
 
 Same for a column indexed only to find its NULLs (`airports.timezone` was indexed to find airports with no zone). That is an admin gap-finding query, not a hot path.
@@ -142,6 +146,7 @@ If one of these tables ever grows and the queue query is genuinely slow, add a P
 FK columns are different: Postgres does NOT auto-create an index for a foreign key the way MySQL does, so `constrained()` alone leaves the join and the ON DELETE check unindexed. Index FK columns you actually join or filter on.
 
 ## Park the JETNET mirror before migrate:fresh; dont_drop does not work
+
 `migrate:fresh` drops the `jetnet_*` mirror with everything else, and re-syncing is ~485 pages against a rate-limited credential. The flow is:
 
     php artisan app:jetnet:snapshot

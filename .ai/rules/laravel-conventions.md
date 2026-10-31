@@ -1,6 +1,6 @@
 ---
 paths:
-  - '**/*.php'
+    - '**/*.php'
 ---
 
 # Laravel Conventions

@@ -1,12 +1,13 @@
 ---
 paths:
-  - 'routes/**'
-  - routes/api.php
+    - 'routes/**'
+    - routes/api.php
 ---
 
 # Routes
 
 ## The organization is the container: rosters are nested under it
+
 Every user listing in the application is one organization's — one route group (routes/organizations.php), one controller (App\Http\Controllers\UserController) and one page (resources/js/pages/users/index.tsx) for every audience. Two addresses reach it:
 
 - `/users` (`UserController@own`) renders the signed-in user's own roster. No identifier in the URL at all, so the only roster most people can reach is not addressed by something they could edit. This is the address the nav points at.
@@ -14,7 +15,7 @@ Every user listing in the application is one organization's — one route group 
 
 No organization type in any path. `/broker/users` was considered and rejected: a user's type is implied by who they are, so the segment says nothing `/users` does not, and it re-raises "which broker" for platform staff. The only type in a URL is the `?type=` filter on the organizations listing, which is what the Brokers and Operators nav links are.
 
-Do not add a listing addressed by organization *type*. That is what this replaced, and the reason it had to go is concrete: many organizations answer to a type, so "create a user here" had no answer for which one they join, and creating had to be refused everywhere but the actor's own audience.
+Do not add a listing addressed by organization _type_. That is what this replaced, and the reason it had to go is concrete: many organizations answer to a type, so "create a user here" had no answer for which one they join, and creating had to be refused everywhere but the actor's own audience.
 
 Organizations are addressed by ULID, never by primary key (`Organization::getRouteKeyName`). Record routes carry `->whereUlid('organization')` and the per-kind listings (`/organizations/brokers`, `/organizations/operators`) carry `->whereIn('type', OrganizationType::pluralsOfOnboarded())`, so the two shapes can never match the same path. Without the ULID constraint an unknown listing answers 405 rather than 404 — the address exists, only the method is wrong — which says more about the route table than it should.
 
@@ -26,7 +27,7 @@ The kind is never nested in a record's path. `/organizations/operators/{organiza
 
 Authorization is a policy answer wherever a policy can actually answer it — rosters and organizations are guarded by UserPolicy and OrganizationPolicy, not by middleware. UserPolicy::viewAny and ::create take the organization; OrganizationPolicy guards the companies list, which platform staff alone may open (organizations.manage).
 
-A roster the actor may not see at all answers 404, not 403 (UserController::authorizeRoster). A 403 is uniform for an organization that does not exist and specific for one that does, which lets an operator enumerate the other operators by walking ids — AC14.4 makes that confidential. Refusals about the *action* stay 403.
+A roster the actor may not see at all answers 404, not 403 (UserController::authorizeRoster). A 403 is uniform for an organization that does not exist and specific for one that does, which lets an operator enumerate the other operators by walking ids — AC14.4 makes that confidential. Refusals about the _action_ stay 403.
 
 The organizations listing holds onboarded companies only — `OrganizationType::onboarded()`, everything but Platform. LastLook has a row because every user needs an organization, not because anybody onboarded it; its staff are reached through /users.
 
@@ -43,6 +44,7 @@ What was given up: the architecture suite used to assert categorically that ever
 If a future feature area genuinely wants a panel prefix, the three route files are in git history (00b7472) — they were deleted in the same change that removed the prefixes, not lost.
 
 ## API routes go inside the middleware group; the ability stays on the route
+
 routes/api.php declares one group carrying the two guarantees a whole surface shares — `auth:sanctum` (via ApiController::GUARD) and `api.organization:broker` — plus `prefix('v1')` and `name('api.v1.')`. Write new endpoints inside it. A route mounted outside is not merely inconsistent, it is unauthenticated.
 
 NEVER hoist `abilities:` into the group. It is per-action by definition: a `GET /bookings` added under a group carrying `bookings.intake` would demand the intake permission to read, refusing the callers who should be allowed and letting an intake token read. Each route names its own.
@@ -52,6 +54,7 @@ A second audience means a sibling group, not an override inside this one — `ap
 Enforced by tests/Architecture/: RoutesTest fails a route with no auth at all, ApiTest fails one that authenticates by token but names no ability (checked against App\Enums\Permission, not merely present) or no audience.
 
 ## Routes are declared per verb; `Route::resource` is not used
+
 Write a `Route::get/post/patch/delete(...)` line per action — 26 of them here.
 `Route::resource` is not used anywhere. Keep it that way: an explicit line per action is what makes the
 ability-per-route rule in [`api.md`](api.md) and the one-resource-per-controller
@@ -59,6 +62,7 @@ rule in [`http.md`](http.md) checkable, and the architecture tests read the
 route table rather than a resource declaration.
 
 ## Rate limits are inline `throttle:N,1` on the route
+
 `->middleware('throttle:20,1')` on the route — three
 tiers in use, 10, 20 and 30 a minute, plus 60 for the booking form's typeahead
 searches (#35), where four pickers share one limiter per person and a debounce
@@ -75,6 +79,7 @@ and keep it out of that screen's prefix. One route group, the audience middlewar
 `throttle:60,1,search` key.
 
 ## organization.type is back for the Gate::before gap only
+
 EnsureOrganizationType and the `organization.type` alias were deleted with the panel prefixes (00b7472) and are restored. The old reasoning still stands: a role is scoped to one organization type, so holding a permission proves the audience, and no panel prefixes are coming back.
 
 What it did not cover is `Gate::before`, which answers true for Super Admin and Platform Admin on EVERY ability. A screen gated on a broker-only permission still admits both, and no policy can refuse them. Name the audience on the route in that case, e.g. `->middleware('organization.type:broker')` on bookings.index.

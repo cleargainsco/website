@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'app/Http/Resources/**'
+    - 'app/Http/Resources/**'
 ---
 
 # Resources
@@ -36,6 +36,7 @@ that returns a paginator declares the concrete class
 ([`domains.md`](domains.md)).
 
 ## Do not hand-serialise what the resource already serialises
+
 Return values in their PHP form. The resource encodes them.
 
 - BACKED ENUMS: `'status' => $this->status`, never `$this->status?->value`. PHP encodes a backed enum to its backing value automatically, so `->value` is a no-op that also throws away the type on the way past. OrganizationResource has always done this; SyncDriftReviewResource briefly did not.
@@ -47,6 +48,7 @@ Reach for explicit conversion only when the wire shape genuinely differs from th
 Separately (from .ai/rules/domains.md, repeated because the old advice is everywhere): DO hand a resource collection straight to Inertia — `Resource::collection($paginator)`. Inertia's prop resolver calls `toResponse($request)->getData(true)` itself for anything `Responsable`, and `JsonResource` does not implement `Arrayable`, so the `Arrayable` branch never catches it. `->response()->getData(true)` in a controller is that same pair of calls written by hand, and it eagerly resolves a prop that `Inertia::defer()` wanted lazy.
 
 ## Guard relationships with `whenLoaded()`
+
 A relationship in a
 resource is `'organization' => $this->whenLoaded('organization', fn () => ...)`,
 never an unconditional `$this->organization`, so a resource cannot trigger a
@@ -55,6 +57,7 @@ shape is decided by the query's `->with()`. Scalars need no guard; `when()` is
 for a field that depends on a condition, not on a relation being loaded.
 
 ## Money is the exception to "return the value object"
+
 The "VALUE OBJECTS: return the object, the resource encodes them" rule above does NOT hold for money. `Brick\Money\Money` implements JsonSerializable and encodes itself as `{"amount":"12345.00","currency":"USD"}` — the major-unit decimal as a string, integer minor units dropped. Returning a cast attribute directly hands the browser a figure it can only reach through `parseFloat`, which is the hazard the `unsignedBigInteger` column exists to prevent, in the one place it looks correct.
 
 KEY THE PAYLOAD ON THE ATTRIBUTE, NEVER THE COLUMN. `incumbent_cost_minor` as a key gives you `incumbent_cost_minor.minor`, which stutters and leaks a storage detail. The column name has no business in a payload:
@@ -72,7 +75,7 @@ TWO FIELDS, AND THEY ARE COMPLETE. `minor` (int) plus `currency` (ISO code) is t
 ```ts
 import { formatMoney } from '@/lib/money';
 
-formatMoney(look.price_to_beat)   // '$24,500.99' in the VIEWER's locale
+formatMoney(look.price_to_beat); // '$24,500.99' in the VIEWER's locale
 ```
 
 DO NOT DIVIDE BY 100 ON THE CLIENT. The scale belongs to the currency — JPY has no minor unit, so a hardcoded hundred renders ¥1,000 as ¥10. `formatMoney()` derives it from Intl. Arithmetic uses `minor`, exact in JS below Number.MAX_SAFE_INTEGER (~$90 trillion at cents).
@@ -80,6 +83,7 @@ DO NOT DIVIDE BY 100 ON THE CLIENT. The scale belongs to the currency — JPY ha
 TESTING TRAP: a nested resource resolves during JSON encoding, not in `toArray()`. `(new SomeResource($model))->toArray($request)` — the style tests/Feature/Models/BookingTest.php uses — leaves a MoneyResource OBJECT where the keys belong and proves nothing. Assert against `->response()->getData(true)`.
 
 ## A departure time is the airport's, never the reader's — derive it server-side
+
 Never ship `departs_at` to a screen that will render it. It is a UTC instant, and `new Date(...)` in a browser is the VIEWER's clock — a 22:00 KTEB departure on the 12th is 02:00Z on the 13th, so the board shows a different day depending on where the reader sits, next to a cell reading KTEB. The trip_legs migration spells this out; it is the common case for a US desk, not an edge one.
 
 Convert through the origin airport's timezone (TripLeg::departsAtLocal(), which uses the offset in force on the departure date, not today's) and send the worded label plus an `is_time_known` flag. `departs_at` null is a real state ("sometime on the 14th") — render `departure_date_local` and never invent a midnight.
@@ -87,9 +91,11 @@ Convert through the origin airport's timezone (TripLeg::departsAtLocal(), which 
 The general test: does the value belong to the VIEWER or to the THING? Money belongs to the viewer, so it crosses as minor units + currency and is formatted client-side. A route string belongs to neither — derive it (Trip::routeLabel()). A departure belongs to the airport — derive it. Do not ship raw legs so a page can assemble what the server already knows.
 
 ## Queries and enums return data; a Resource builds the shape the page reads
+
 A query returns models, collections or paginators, and an enum returns its cases. Neither builds the array a page consumes — `{value, label}` option lists included — and neither does a controller mapping inline (`->map(fn ($x) => ['value' => ..., 'label' => ...])`). Decided 2026-09-15 on LL-71.
 
 The shape is a JsonResource in app/Http/Resources, applied in the controller through `toResourceCollection()`:
+
 - `$options->charterOperators()->toResourceCollection(JetNetOperatorOptionResource::class)`
 - `collect(BookingSource::cases())->toResourceCollection(EnumOptionResource::class)`
 
@@ -100,16 +106,17 @@ The `LastLooksBoard*` queries are the standing exception, and the only one. `App
 Not a licence for the next query: it names these three classes, and any other query still returns models, collections or paginators with a Resource building the shape.
 
 ## A fixed vocabulary on the wire is a backed enum, never a string literal
+
 SETTLED 2026-10-02. When a payload field can only ever hold one of a few values the page
 switches on, it is a backed enum in PHP and a mirror in `resources/js/types/enums.ts` — not
 `'urgent'` written into a resource, and not a string-union `type` on the frontend.
 
 The looks board's two are the example:
 
-| Field | PHP | TypeScript |
-| --- | --- | --- |
-| `tone`, `tag_tone`, a delta's and a stat tile's `tone` | `App\Enums\LastLookTone` | `LastLookTone` |
-| an action's `variant` | `App\Enums\LastLookActionVariant` | `LastLookActionVariant` |
+| Field                                                  | PHP                               | TypeScript              |
+| ------------------------------------------------------ | --------------------------------- | ----------------------- |
+| `tone`, `tag_tone`, a delta's and a stat tile's `tone` | `App\Enums\LastLookTone`          | `LastLookTone`          |
+| an action's `variant`                                  | `App\Enums\LastLookActionVariant` | `LastLookActionVariant` |
 
 - Return the CASE — `'tone' => LastLookTone::Muted` — and let the resource encode it (see
   "Do not hand-serialise" above). The phpstan types in `App\Contracts\LastLooksBoard` name
@@ -124,6 +131,7 @@ Next in line, not yet converted: an action's `key` (`compare`, `decide`, `withdr
 `LastLookActionKey` union. Convert it when that code is next touched.
 
 ## Copy a resource sends is read from `lang/`, grouped by screen
+
 SETTLED 2026-10-02. A label, note, empty state or button text that a resource puts in a
 payload is a key in `lang/en/{screen}.php`, never a literal in the resource. The looks board's
 is `lang/en/last-looks.php` (`board`, `stats`, `panels.{tab}`, `draft`, `live.{state}`,

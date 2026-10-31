@@ -12,18 +12,18 @@ A `FormRequest` rule of `string`, `integer`, `array`, `boolean`, etc. is a guara
 
 A cast guarantees the type at read time. The only legal runtime check is null vs. not-null (or empty vs. not-empty for collection-shaped values). **`is_*()` checks on cast attributes are unreachable code.**
 
-| Cast on the model | ❌ Wrong (defensive doubling) | ✅ Right |
-| --- | --- | --- |
-| `'array'` | `is_array($model->x)` | `$model->x !== null` / `$model->x === []` |
-| `'string'` | `is_string($model->x)` | `$model->x !== null` / `$model->x !== ''` |
-| `'integer'` | `is_int($model->x)` | `$model->x !== null` |
-| `'boolean'` | `is_bool($model->x)` | `$model->x` (it IS the boolean) |
-| `'datetime'` | `$model->x instanceof Carbon` | `$model->x !== null` |
-| `'collection'` | `$model->x instanceof Collection` | `$model->x->isNotEmpty()` |
-| Custom enum cast | `$model->x instanceof FooEnum` | `$model->x !== null` (or compare to case) |
-| Custom DTO cast | `$model->x instanceof FooData` | `$model->x !== null` |
-| Spatie `Data` field | `is_X($dto->field)` | `$dto->field !== null` |
-| Validated FormRequest | `is_X($validated['key'])` | use `$validated['key']` directly |
+| Cast on the model     | ❌ Wrong (defensive doubling)     | ✅ Right                                  |
+| --------------------- | --------------------------------- | ----------------------------------------- |
+| `'array'`             | `is_array($model->x)`             | `$model->x !== null` / `$model->x === []` |
+| `'string'`            | `is_string($model->x)`            | `$model->x !== null` / `$model->x !== ''` |
+| `'integer'`           | `is_int($model->x)`               | `$model->x !== null`                      |
+| `'boolean'`           | `is_bool($model->x)`              | `$model->x` (it IS the boolean)           |
+| `'datetime'`          | `$model->x instanceof Carbon`     | `$model->x !== null`                      |
+| `'collection'`        | `$model->x instanceof Collection` | `$model->x->isNotEmpty()`                 |
+| Custom enum cast      | `$model->x instanceof FooEnum`    | `$model->x !== null` (or compare to case) |
+| Custom DTO cast       | `$model->x instanceof FooData`    | `$model->x !== null`                      |
+| Spatie `Data` field   | `is_X($dto->field)`               | `$dto->field !== null`                    |
+| Validated FormRequest | `is_X($validated['key'])`         | use `$validated['key']` directly          |
 
 `JetNetTail` casts `raw_response` to `'array'`: `$tail->raw_response === null` ✅, never `is_array($tail->raw_response)` ❌.
 

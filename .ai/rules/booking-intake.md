@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/Domains/Broker/Pipelines/BookingIntake/**'
+    - 'app/Domains/Broker/Pipelines/BookingIntake/**'
 ---
 
 # Booking Intake
 
 ## The incumbent operator is a fact, not a preference
+
 A booking's incumbent is who the broker has a contract with for that trip. Never gate resolving it on `OperatorStatus` — archived, cancelled or otherwise unwanted is OUR bookkeeping, and refusing the push or nulling `incumbent_operator_id` because of it discards true information to enforce a preference of ours.
 
 This was tried and reverted: a guard was added to both `ResolveTail` and `ResolveIncumbentByCertificate` on the strength of `OperatorStatus::Archived` reading "Never resolved onto a new booking again". That sentence conflated two things and has been reworded — it governs recruitment and candidacy, not what a booking records.

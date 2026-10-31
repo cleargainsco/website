@@ -16,6 +16,7 @@ When actions can produce different outcomes (single vs multiple updates, success
 **Actions returning contextual information MUST use typed result objects in `app/Results/`.**
 
 Result objects should be:
+
 - `final readonly` classes
 - Have static factory methods for each outcome type
 - Include all necessary data (message, counts, models)
@@ -66,12 +67,14 @@ count into the message and carries no count field; when a caller needs the numbe
 ## When to Use Result Objects
 
 Use result objects when:
+
 - Action has multiple possible outcomes
 - Controller needs contextual success messages
 - Caller needs to know specifics (counts, created models)
 - Testing needs to verify specific outcomes
 
 Don't need result objects when:
+
 - Action has single outcome (simple void action)
 - No contextual information needed by caller
 - Action just returns the created/updated model directly

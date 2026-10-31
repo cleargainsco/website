@@ -83,6 +83,7 @@ public function tripLegs(): HasManyThrough
 ```
 
 Supported relationship types:
+
 - `hasMany`
 - `hasOne`
 - `hasManyThrough`

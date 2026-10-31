@@ -10,6 +10,7 @@ Higher-level "Sync" actions orchestrate multiple smaller actions, handle single-
 ## Overview
 
 When an operation can target a single entity or multiple entities (e.g., "apply to this leg" vs "apply to all legs"), create an orchestration action that:
+
 - Composes smaller, focused action classes
 - Determines eligible targets based on business rules
 - Wraps the entire operation in a database transaction
@@ -69,11 +70,11 @@ then `return Toast::success($result->message)->back();`.
 
 ## Naming Conventions
 
-| Pattern | Example | Purpose |
-|---------|---------|---------|
+| Pattern                 | Example                       | Purpose                             |
+| ----------------------- | ----------------------------- | ----------------------------------- |
 | `Sync*ToTripLegsAction` | `Sync{Thing}ToTripLegsAction` | Apply data to one or more trip legs |
-| `Sync*Action` | `Sync{Thing}Action` | General sync/apply pattern |
-| `Batch*Action` | `BatchUpdateStatusAction` | Apply same change to multiple items |
+| `Sync*Action`           | `Sync{Thing}Action`           | General sync/apply pattern          |
+| `Batch*Action`          | `BatchUpdateStatusAction`     | Apply same change to multiple items |
 
 ## Key Characteristics
 

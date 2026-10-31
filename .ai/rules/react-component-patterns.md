@@ -101,6 +101,7 @@ This project has React Compiler enabled. Do NOT use `useMemo`, `useCallback`, or
 - `form-submit-enter-key.md` - Form submission patterns
 
 ## Forms use the `<Form>` component, not the `useForm` hook
+
 SETTLED by the tree, and this section used to claim the opposite. `useForm` appears in
 NO file here; `<Form>` is in 22, and every form written since has used it, so there is
 nothing left to decide. `conventions.md` records the same thing.
@@ -116,6 +117,7 @@ in `prepareForValidation()`, so `+1 213 373 4253` is stored as `+12133734253` wh
 field happened to render ([`normalize-on-write.md`](normalize-on-write.md)).
 
 ## A form with fields carries `noValidate`; the server is the only validator
+
 Every `<Form>` that has something to type into takes `noValidate` — the plain HTML
 attribute, which Inertia passes through to the real `<form>`. A form that is only a
 submit button does not, because it has nothing to validate either way.
@@ -145,5 +147,6 @@ Where the round trip genuinely grates on a simple form, the answer is Precogniti
 source of truth.
 
 ## The compiler rule is already violated inside shadcn output — do not add to it
+
 `useMemo` / `useCallback` / `React.memo` appear in 7 files here, almost all
 inside `components/ui/*` (shadcn-generated) and the starter-kit hooks. Leave generated files alone; write nothing new with them.

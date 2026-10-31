@@ -13,14 +13,14 @@ below).
 The audience is the context, and the query layer nests inside those folders.
 Inside a domain:
 
-| Subdirectory | Holds |
-| --- | --- |
-| `Enums/` | vocabulary that belongs to that audience — `LastLookStatus`, `BidOutcome`; an enum both audiences share is `app/Enums/` |
-| `Queries/` | EVERY read, whatever it is built on — a queue, a board, a lookup: `SyncDriftReviewsQuery`, `LastLooksBoardQuery` and its audience subclasses, and `Broker/Queries/BookingsBoardQuery`, whose filters and sorts are *declared* on spatie/laravel-query-builder (the bookings board, #37, which brought the package with it — below). There is no `QueryBuilders/`: the package is how a read answers, not a kind of class, and two directories that both mean "reads" only drift |
-| `QueryFilters/`, `QuerySorts/` | a filter or sort that needs more than a column, as a class — created when the first one arrives |
-| `Data/{Subject}/` | that audience's own boundary types on laravel-data, ONE SUBDIRECTORY PER WIRE CONTRACT — `Broker/Data/BookingIntake/` holds `PayloadData`, `LegData` and `IncumbentData`. The namespace carries the scoping so the part types keep short names: the import line reads `Data\BookingIntake\LegData` without every class having to repeat the prefix. A VENDOR boundary type stays with its vendor under `app/Services/{Vendor}/Data/` ([`services.md`](services.md)); these describe what a BROKER sends us, which no vendor namespace owns |
-| `Exceptions/` | a refusal only that audience can make — `Broker/Exceptions/BookingIntakeException` and the three beside it. An exception the whole app raises stays in `app/Exceptions/` |
-| `Pipelines/{Subject}/` | THE ONE EXCEPTION to "writes never live here", and it is narrow — see below |
+| Subdirectory                   | Holds                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Enums/`                       | vocabulary that belongs to that audience — `LastLookStatus`, `BidOutcome`; an enum both audiences share is `app/Enums/`                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `Queries/`                     | EVERY read, whatever it is built on — a queue, a board, a lookup: `SyncDriftReviewsQuery`, `LastLooksBoardQuery` and its audience subclasses, and `Broker/Queries/BookingsBoardQuery`, whose filters and sorts are _declared_ on spatie/laravel-query-builder (the bookings board, #37, which brought the package with it — below). There is no `QueryBuilders/`: the package is how a read answers, not a kind of class, and two directories that both mean "reads" only drift                                                            |
+| `QueryFilters/`, `QuerySorts/` | a filter or sort that needs more than a column, as a class — created when the first one arrives                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `Data/{Subject}/`              | that audience's own boundary types on laravel-data, ONE SUBDIRECTORY PER WIRE CONTRACT — `Broker/Data/BookingIntake/` holds `PayloadData`, `LegData` and `IncumbentData`. The namespace carries the scoping so the part types keep short names: the import line reads `Data\BookingIntake\LegData` without every class having to repeat the prefix. A VENDOR boundary type stays with its vendor under `app/Services/{Vendor}/Data/` ([`services.md`](services.md)); these describe what a BROKER sends us, which no vendor namespace owns |
+| `Exceptions/`                  | a refusal only that audience can make — `Broker/Exceptions/BookingIntakeException` and the three beside it. An exception the whole app raises stays in `app/Exceptions/`                                                                                                                                                                                                                                                                                                                                                                   |
+| `Pipelines/{Subject}/`         | THE ONE EXCEPTION to "writes never live here", and it is narrow — see below                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 Writes never live here: every write is an `app/Actions/` class
 ([`code-architecture-conventions.md`](code-architecture-conventions.md)). Reads
@@ -150,7 +150,7 @@ record is chosen and saved.
 Adopted with the bookings board (#37). A single search box is not the
 trigger — a plain query with a typed parameter covers that
 (`OperatorInvitationsQuery::candidates(string $search)` on LL-66). The trigger
-is a screen whose filters and sorts are *declared*: several of them, driven by
+is a screen whose filters and sorts are _declared_: several of them, driven by
 the URL, that the package should validate. Each such screen gets one class in its
 audience's own `Queries/` — `BookingsBoardQuery`, `final readonly`, `Request`
 injected — built internally on `QueryBuilder::for($query, $this->request)` and
@@ -207,6 +207,7 @@ $page = $bookings->paginate();
   `where` is the only boundary there is rather than a second copy of one.
 
 ## Organization-owned models carry a global scope, not a where clause per query
+
 When a model belongs to an organization (LastLook, Bid, and everything else FR1-FR13 adds), enforce the tenancy boundary with a global scope on the model, keyed on the signed-in user's organization_id. Do not scope it with a `where('organization_id', ...)` inside each domain query.
 
 Why: a per-query filter is only as good as the last person who remembered it, and confidentiality here is the product (AC14.4 — an operator must never see another operator's bid, a count or a rank). A global scope fails closed for every call site at once, including the ones nobody has written yet. This is the query-layer half of NFR4; permissions answer what kind of action, never whose rows.
@@ -218,6 +219,7 @@ Users are the exception that proves it, and deliberately have no global scope. T
 Pair the scope with a feature test that a user of one organization gets a 404 — not a 403 — for another organization's record, so the response does not confirm it exists.
 
 ## Query classes return paginators, and spatie builders live in Queries/ too
+
 There is no QueryBuilders/ directory. A read built on spatie/laravel-query-builder is still a read: BookingsBoardQuery sits in app/Domains/Broker/Queries/ beside UsersQuery. Two directories that both mean "reads" only drift.
 
 A query returns a finished answer, not a builder for the controller to chain onto — `paginate()` and `withQueryString()` happen inside, matching UsersQuery, OrganizationsQuery and SyncDriftReviewsQuery. The controller picks a query and renders its result. Type the return as the CONCRETE Illuminate\Pagination\LengthAwarePaginator when the caller needs toResourceCollection() or getCollection(); neither is on the contract.
@@ -225,6 +227,7 @@ A query returns a finished answer, not a builder for the controller to chain ont
 Page size is part of the query, not the controller. BookingsBoardQuery declares `REMEMBERS_PAGE_SIZE` and drives App\Domains\Shared\Queries\PerPagePreference itself. The "a query never saves" rule is about hidden writes — a declared, named one is fine. Read the applied size off the paginator (`->perPage()`) rather than resolving it a second time.
 
 ## Do not extract a board-query base until the second real one exists
+
 BookingsBoardQuery is the only request-driven, spatie-filtered, paginated query in the app. The LastLooksBoard* classes are fixtures (no DB, no pagination, no Request) and stay tabbed-panel projections when FR6-FR9 make them real; UsersQuery/OrganizationsQuery/SyncDriftReviewsQuery take ARGUMENTS, not a Request, which is what lets them serve several callers. Do not pull a base class out of one example — see this file's UsersQuery note about subclasses that had nothing to declare.
 
 The abstract-base rule above is about ONE THING READ BY TWO AUDIENCES (LastLooksBoardQuery), not about boards sharing pagination. Bookings have one audience by design: BookingScope has no operator half, so there will never be an OperatorBookingsBoardQuery.

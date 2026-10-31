@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/Actions/**'
+    - 'app/Actions/**'
 ---
 
 # Actions
 
 ## An organization and its first admin are paired in an Action, never an observer
+
 `CreateOrganizationAction` creates the company and its admin (`RoleName::adminFor`, then `CreateUserAction`) in one transaction. Any future path that onboards a company — inviting an operator off the JetNet mirror — belongs beside it, calling the same pieces.
 
 Do not move this to an `Organization::created` observer. An observer fires with no admin address to use, so a company created by a sync would get an invented one, and an invented address cannot receive the invitation that is the account's only way in. It would also put a user on every factory-made organization, which breaks `DeleteOrganizationAction`'s "an organization with people cannot be removed".
@@ -13,6 +14,7 @@ Do not move this to an `Organization::created` observer. An observer fires with 
 The invariant is "a company a person onboards arrives with its admin", not "every organizations row has a user".
 
 ## Operator invites create an invitation, not a pending organization
+
 Inviting an operator off the JetNet mirror list creates an invitation record only. The `Organization` and its admin are created at acceptance, through an action beside `CreateOrganizationAction` (reuse `RoleName::adminFor`). Decided before the sync was built; do not create a pending organization at invite time.
 
 Why not pending rows: every query touching operators would need a "not pending" clause — the listing, the LastLook recipient set, bid eligibility, roster counts — and forgetting one sends a LastLook to a company that never accepted (see the global-scope rule in .ai/rules/domains.md). A pending admin also holds the platform-unique `users.email` forever, so a never-accepted invite blocks re-inviting anyone at that address. And withdrawing an invite would mean deleting an organization with people on it, which `DeleteOrganizationAction` refuses by design.
@@ -26,6 +28,7 @@ Acceptance needs its own action, not `CreateUserAction`: that one stores a rando
 Two-factor is NOT part of acceptance: it is opt-in per user (#280), chosen in security settings as an authenticator app or an emailed code, and everybody without one is prompted after signing in. Nothing forces enrolment.
 
 ## An Action takes models and one Data object — never a list of scalars
+
 `handle()` takes the models it acts on, plus ONE Data object built from `$request->validated()`. Never a spread of scalar parameters.
 
 Bad — the controller ends up doing conversion, null-coalescing and lookup, none of which is its job, and every added field touches three files:
@@ -47,6 +50,7 @@ RESOLVING AN IDENTIFIER INTO A MODEL IS THE ACTION'S JOB, not the controller's. 
 Examples: `IssueInvitationData`, `ClaimInvitationData`, `NewOperatorData`.
 
 ## A locked write: guards, one write, then dispatch
+
 - Lock, then re-check: inside `DB::transaction` take `$held = $model->refreshForUpdate()` and test every guard on `$held`, never the caller's copy (`SendAwardContractAction`).
 - Guards are one line each: `throw_if`/`throw_unless` with a named constructor on a `{Thing}Cannot{Verb}Exception extends DomainException`, whose translated message is written for its reader (`ContractCannotBeSentException`).
 - Side effects run after the commit: dispatch outside the transaction, to a job that implements `ShouldQueueAfterCommit` (`FanOutContractSentAlertsJob`).

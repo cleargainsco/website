@@ -16,6 +16,7 @@ When multiple database writes must succeed or fail together, wrap them in `DB::t
 **Database transactions MUST be in action classes, NOT in controllers.**
 
 Controllers should:
+
 - Inject and call action classes
 - Handle try/catch for user-facing errors
 - Never contain `DB::transaction()`
@@ -69,6 +70,7 @@ rows were written — no partial data.
 ## Exceptions
 
 Transactions MAY be in controllers when:
+
 - Prototyping/MVPs (move to action before merging)
 - Simple single-model operations (though action is still preferred)
 

@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/**'
+    - 'app/**'
 ---
 
 # App
 
 ## Start every model query with ::query()
+
 Write `User::query()->create([...])`, `Organization::query()->firstOrCreate([...])` — never the bare static form `User::create(...)`.
 
 The bare form goes through `Model::__callStatic`, so static analysis and editors cannot resolve the method and report it as undefined. `::query()` returns a real `Builder`, and every builder method resolves from there.
@@ -15,6 +16,7 @@ Applies wherever a model is queried — actions, commands, seeders, tests — no
 Since 2026-09-09 (`chore/rector-laravel-sets`, pending merge) Rector enforces this — `LARAVEL_ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER` in `rector.php` — so `composer test` rewrites or fails on the bare form. The rule stands; the tooling applies it.
 
 ## Reach for a collection chain before a raw foreach
+
 Prefer `collect()` / Eloquent collections and chained methods — `map`, `filter`, `flatMap`, `reduce`, `groupBy`, `keyBy`, `pluck`, `sum` — over a raw `foreach`. Applies to new and changed code; the existing `foreach`es are not a sweep waiting to happen.
 
 `flatMap` is the one people miss. It is the tool when ONE item produces ZERO OR MORE results — DetectSyncDriftAction's models each yield a rename and/or a category change. Before it, that was a generator, and `yield` was buying nothing there: the collections were already fully loaded and nothing consumed them lazily.
@@ -31,6 +33,7 @@ Where a generator still earns its place: genuinely streaming data — `Model::cu
 Prefer a small named object over a positional tuple as the thing being mapped. A five-element array grew a sixth element in one branch of the code and not the other; `Collection<int, DriftFinding>` also sidesteps PHPStan's invariance complaints about array shapes with intersection types inside them.
 
 ## Build dates with the Date facade, never CarbonImmutable:: directly
+
 Use `Illuminate\Support\Facades\Date` to construct a date — `Date::parse($v)`, `Date::now()` — never `CarbonImmutable::parse()` or `Carbon::parse()`. `config/essentials.php` sets `ImmutableDates::class => true` (nunomaduro/essentials), so `Date::` already returns `CarbonImmutable` at runtime; naming the concrete class hardcodes a decision the config owns, and a project that later flips it would have to be swept.
 
 TYPE THE RESULT `Carbon\CarbonInterface`, not `CarbonImmutable`. The facade's signature says `Illuminate\Support\Carbon`, so PHPStan rejects a `CarbonImmutable` parameter fed from `Date::parse()`. `ResolvedLeg`, `BookingIntakeException::departureDayDisagrees()` and `ValidLegSequence` were widened to `CarbonInterface` for exactly this. Do not reach for `->toImmutable()` to keep the narrow type — that is ceremony for a guarantee the config already gives.
@@ -38,6 +41,7 @@ TYPE THE RESULT `Carbon\CarbonInterface`, not `CarbonImmutable`. The facade's si
 `@property CarbonImmutable $x` on a MODEL stays: that is what an Eloquent datetime cast actually returns, and it is an annotation rather than a construction. An assertion about the config itself (`toBeInstanceOf(CarbonImmutable::class)`) is also fine. New and changed code only — the older fixtures in tests/Feature/Actions and tests/Feature/Schema are not a sweep waiting to happen.
 
 ## Reach through the relationship, never a hand-written foreign-key where
+
 Read and write an organization's own rows through its relationship — `$organization->tails()`, `$organization->contacts()`, `$organization->users()` — not `Model::query()->where('organization_id', $organization->getKey())`.
 
 TWO REASONS, and the second is the load-bearing one:

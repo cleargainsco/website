@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'tests/**'
+    - 'tests/**'
 ---
 
 # Testing
@@ -8,6 +8,7 @@ paths:
 Measured across this codebase's 79 test files on 2026-09-09.
 
 ## Pest, `tests/{Architecture,Browser,Feature,Unit}`, one `{Subject}Test.php` per subject
+
 Pest only — no PHPUnit-style classes. Files are
 `{Subject}Test.php` mirroring the source path under `tests/Unit/` or
 `tests/Feature/`. `tests/Stubs/` holds fixture payloads; `tests/Support/` holds
@@ -19,6 +20,7 @@ wherever they can express the invariant. Browser tests are the fourth root —
 next section.
 
 ## Browser tests live in `tests/Browser`, and are run by path, never by testsuite
+
 Journeys through a real browser, on `pestphp/pest-plugin-browser`, named for the
 journey or screen rather than a source file (`SmokeTest.php`,
 `Onboarding/ClaimLinkTest.php`). A feature test sees only the props a controller
@@ -42,6 +44,7 @@ a bare `composer test:browser` is not that run. `release.yml` gates on `ci`
 alone, so a red browser run holds up nothing.
 
 ## `composer test:unit` runs Pest's TIA; CI still runs the whole suite
+
 `--tia`: Pest re-runs only the tests affected since the last run and replays the rest from
 the gitignored `.pest/tia` graph. CI runs everything because it has nothing to replay: a
 fresh checkout holds no graph, and `coverage: none` gives it no driver to record one. If CI
@@ -69,6 +72,7 @@ makes Pest warn and run the full suite rather than trust a stale graph. A run na
 path or `--filter` bypasses TIA. Browser scripts never take `--tia` (`TestScriptsTest`).
 
 ## `test()` and `it()` are both in use; group with `describe()`
+
 There is more `test()` than `it()` here, so either is fine — the description is a
 sentence either way. Group related cases under `describe('Subject', ...)`: prefer
 that shape for a new file with more than a handful of cases. The booking intake
@@ -83,6 +87,7 @@ a `describe('refusals')` opposite a `describe('successes')` files a test by the
 assertion rather than by the behaviour, which is not how anyone looks for one.
 
 ## `RefreshDatabase` is wired once; factories over inserts
+
 `tests/Pest.php` applies `RefreshDatabase` to every Feature and Browser test
 (`->in('Feature', 'Browser')`) — do not add `uses(RefreshDatabase::class)` per
 file, it is declared once. Create test-owned rows with factories. A raw
@@ -92,6 +97,7 @@ NOT NULL column that has no default. Reference data comes from the seeder
 resolves, it does not fabricate ([`factories.md`](factories.md)).
 
 ## Vendor clients: `Http::fake()` against the real client
+
 Vendor integrations are tested by faking HTTP (`Http::fake()`, 31 sites) and
 letting the real `JetNetClient` / `AviowikiClient` run.
 The two interface-bound fakes in `tests/Support/` are for the paths where an
@@ -101,6 +107,7 @@ what the app does with a response, not how it fetched it. Mockery is rare
 (2 sites) — prefer a fake over a mock.
 
 ## Assertions: `assertInertia()`, `assertJson()` / `assertJsonFragment()`, `actingAs()`
+
 Inertia pages are asserted with `assertInertia(fn (Assert $page) => ...)`
 (49 sites). JSON with `assertJson()` / `assertJsonFragment()` —
 `AssertableJson` is unused. Sign in with `actingAs($user)`;
@@ -124,10 +131,12 @@ When the test needs real abilities, go over HTTP with a real token instead:
 `tests/Feature/Api/BookingIntakeTest.php`.
 
 ## Confidentiality tests assert 404, not 403
+
 A user of one organization asking for another organization's record gets a
 **404** — the response must not confirm the row exists (AC14.4). Every
 tenancy-scoped model needs that test ([`domains.md`](domains.md),
-[`scopes.md`](scopes.md)). A refusal about the *action* stays 403.
+[`scopes.md`](scopes.md)). A refusal about the _action_ stays 403.
 
 ## `pestphp/pest-plugin-type-coverage` is not installed
+
 Adopting it is a dev-dependency decision for the owner.

@@ -8,12 +8,12 @@ Omit all comments except those functionally required. Minimize ignore directives
 
 ### Allowed Comments
 
-| Type | Examples | When Allowed |
-|------|----------|--------------|
-| Type annotations | `@var`, `@param`, `@return`, `@template` | When PHP/TS cannot infer types |
-| Test annotations | `@test`, `@covers`, `@dataProvider`, `@depends` | Required by test framework |
-| IDE/tool directives | `@property`, `@mixin`, `@method` | Required for IDE support on magic methods |
-| Suppression directives | `@phpstan-ignore`, `@ts-ignore`, `eslint-disable` | Last resort only (see below) |
+| Type                   | Examples                                          | When Allowed                              |
+| ---------------------- | ------------------------------------------------- | ----------------------------------------- |
+| Type annotations       | `@var`, `@param`, `@return`, `@template`          | When PHP/TS cannot infer types            |
+| Test annotations       | `@test`, `@covers`, `@dataProvider`, `@depends`   | Required by test framework                |
+| IDE/tool directives    | `@property`, `@mixin`, `@method`                  | Required for IDE support on magic methods |
+| Suppression directives | `@phpstan-ignore`, `@ts-ignore`, `eslint-disable` | Last resort only (see below)              |
 
 ### Forbidden Comments
 
@@ -47,7 +47,7 @@ In the owner's words, 2026-09-18:
 
 What survives is the small residue the code genuinely cannot carry:
 
-- **A decision whose alternative looks more obvious than it is**, and would be "fixed" back by the next reader. One or two lines, not an essay: *"No UTC fallback: callers print the zone beside the time, so a guess reads as fact."* *"`min-w-0`: a grid item defaults to `min-width: auto`, which defeats the truncate."*
+- **A decision whose alternative looks more obvious than it is**, and would be "fixed" back by the next reader. One or two lines, not an essay: _"No UTC fallback: callers print the zone beside the time, so a guess reads as fact."_ _"`min-w-0`: a grid item defaults to `min-width: auto`, which defeats the truncate."_
 - **A fixture whose setup is load-bearing**, where dropping a line would leave a test passing for the wrong reason.
 - **Everything in the Allowed Comments table above.**
 

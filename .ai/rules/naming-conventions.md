@@ -4,30 +4,30 @@ This rule owns casing, verbs and anti-patterns; class suffixes and layering belo
 
 ## TL;DR
 
-| Element | Convention | Example |
-| --- | --- | --- |
-| Class | PascalCase, singular noun | `User`, `BookingController`, `CreateOrganizationAction` |
-| Method | camelCase, verb-first, specific | `isContractPending()`, `refreshForUpdate()`, not `process()` |
-| Property / variable | camelCase, descriptive, singular vs plural | `$activeUser`, `$activeUsers` |
-| Constant | `SCREAMING_SNAKE_CASE` | `CHUNK`, `SIGNATURE_MINUTES` |
-| Trait | `*able`, `Has*`, `Is*`, or `{Verb}s{Noun}` | `Notifiable`, `HasEnumLabel`, `RetriesTransientFailures` |
-| Interface | `{Noun}Interface` for a vendor client contract; bare noun-phrase for a role | `JetNetClientInterface`, `OrganizationPrincipal` |
-| Enum | PascalCase, **singular** | `OrganizationStatus`, `AwardContractStatus` |
-| Enum cases | PascalCase | `OrganizationType::Broker`, not `BROKER` |
-| DB table | snake_case, **plural** | `last_looks`, `operator_tails` |
-| DB column | snake_case | `submitted_at`, `organization_id` |
-| Foreign key column | `{singular_model}_id` | `user_id`, `organization_id` |
-| Pivot table | snake_case, models in **alphabetical** order, singular | none yet — `operator_tails` and `last_look_invitations` are models, not pivots |
-| Migration file | `YYYY_MM_DD_HHMMSS_action_table_name.php` | `2026_09_01_000700_create_aircraft_models_table.php` |
-| Factory | `{Model}Factory` | `BookingFactory` |
-| Resource | `{Model}Resource` / `{Model}Collection` | `BookingBoardResource`, `BookingFormResource` |
-| FormRequest | `{Verb}{Model}Request` | `StoreBookingRequest`, `UpdateBookingRequest` |
-| Exception | `{WhatFailed}Exception`, always suffixed | `BookingIntakeException`, `LastLookCannotBeSentException` |
-| DTO | `{Noun}Data` for a laravel-data object; `{Noun}` for a plain value object under `app/Support/` | `AirportData`, `JetNetData`, `TailData`, `DriftSubject` |
-| Test file | `{ClassUnderTest}Test.php` | `BookingsBoardTest.php` |
-| Test block (Pest) | `it('does X when Y')` — sentence form | `it('suggests another operator the name describes')` |
-| Blade view | snake_case | rare — Inertia/React project |
-| React component file | PascalCase (component) or kebab-case (page) — match folder | `acceptable-use.tsx` |
+| Element              | Convention                                                                                     | Example                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Class                | PascalCase, singular noun                                                                      | `User`, `BookingController`, `CreateOrganizationAction`                        |
+| Method               | camelCase, verb-first, specific                                                                | `isContractPending()`, `refreshForUpdate()`, not `process()`                   |
+| Property / variable  | camelCase, descriptive, singular vs plural                                                     | `$activeUser`, `$activeUsers`                                                  |
+| Constant             | `SCREAMING_SNAKE_CASE`                                                                         | `CHUNK`, `SIGNATURE_MINUTES`                                                   |
+| Trait                | `*able`, `Has*`, `Is*`, or `{Verb}s{Noun}`                                                     | `Notifiable`, `HasEnumLabel`, `RetriesTransientFailures`                       |
+| Interface            | `{Noun}Interface` for a vendor client contract; bare noun-phrase for a role                    | `JetNetClientInterface`, `OrganizationPrincipal`                               |
+| Enum                 | PascalCase, **singular**                                                                       | `OrganizationStatus`, `AwardContractStatus`                                    |
+| Enum cases           | PascalCase                                                                                     | `OrganizationType::Broker`, not `BROKER`                                       |
+| DB table             | snake_case, **plural**                                                                         | `last_looks`, `operator_tails`                                                 |
+| DB column            | snake_case                                                                                     | `submitted_at`, `organization_id`                                              |
+| Foreign key column   | `{singular_model}_id`                                                                          | `user_id`, `organization_id`                                                   |
+| Pivot table          | snake_case, models in **alphabetical** order, singular                                         | none yet — `operator_tails` and `last_look_invitations` are models, not pivots |
+| Migration file       | `YYYY_MM_DD_HHMMSS_action_table_name.php`                                                      | `2026_09_01_000700_create_aircraft_models_table.php`                           |
+| Factory              | `{Model}Factory`                                                                               | `BookingFactory`                                                               |
+| Resource             | `{Model}Resource` / `{Model}Collection`                                                        | `BookingBoardResource`, `BookingFormResource`                                  |
+| FormRequest          | `{Verb}{Model}Request`                                                                         | `StoreBookingRequest`, `UpdateBookingRequest`                                  |
+| Exception            | `{WhatFailed}Exception`, always suffixed                                                       | `BookingIntakeException`, `LastLookCannotBeSentException`                      |
+| DTO                  | `{Noun}Data` for a laravel-data object; `{Noun}` for a plain value object under `app/Support/` | `AirportData`, `JetNetData`, `TailData`, `DriftSubject`                        |
+| Test file            | `{ClassUnderTest}Test.php`                                                                     | `BookingsBoardTest.php`                                                        |
+| Test block (Pest)    | `it('does X when Y')` — sentence form                                                          | `it('suggests another operator the name describes')`                           |
+| Blade view           | snake_case                                                                                     | rare — Inertia/React project                                                   |
+| React component file | PascalCase (component) or kebab-case (page) — match folder                                     | `acceptable-use.tsx`                                                           |
 
 ## Rule 1: The `handle()` method
 

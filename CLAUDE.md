@@ -10,19 +10,19 @@ Clear Gains is built on the Laravel React starter kit: Laravel 13 + Inertia v3 +
 
 ## Commands
 
-| Task | Command |
-|------|---------|
-| First-time setup | `composer setup` (install, `.env`, key, migrate, npm install, build) |
-| Dev server (PHP + Vite + queue/logs) | `composer dev` (runs `php artisan dev`) |
-| Frontend only | `npm run dev` / `npm run build` / `npm run build:ssr` |
-| PHP format | `vendor/bin/pint --dirty --format agent` |
-| PHP static analysis | `composer types:check` (PHPStan/Larastan level 7) |
-| JS lint + format check | `npm run check` (fix: `npm run check:fix`) |
-| TS type check | `npm run types:check` |
-| Full PHP test suite (lint + phpstan + tests) | `composer test` |
-| Everything CI runs | `composer ci:check` |
-| Single test file | `php artisan test --compact tests/Feature/DashboardTest.php` |
-| Single test by name | `php artisan test --compact --filter="test name"` |
+| Task                                         | Command                                                              |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| First-time setup                             | `composer setup` (install, `.env`, key, migrate, npm install, build) |
+| Dev server (PHP + Vite + queue/logs)         | `composer dev` (runs `php artisan dev`)                              |
+| Frontend only                                | `npm run dev` / `npm run build` / `npm run build:ssr`                |
+| PHP format                                   | `vendor/bin/pint --dirty --format agent`                             |
+| PHP static analysis                          | `composer types:check` (PHPStan/Larastan level 7)                    |
+| JS lint + format check                       | `npm run check` (fix: `npm run check:fix`)                           |
+| TS type check                                | `npm run types:check`                                                |
+| Full PHP test suite (lint + phpstan + tests) | `composer test`                                                      |
+| Everything CI runs                           | `composer ci:check`                                                  |
+| Single test file                             | `php artisan test --compact tests/Feature/DashboardTest.php`         |
+| Single test by name                          | `php artisan test --compact --filter="test name"`                    |
 
 Frontend tooling is **Vite+** (`vp` CLI, `vite-plus` package), not plain Vite. Lint and format settings (oxlint/oxfmt-style: 4-space indent, single quotes, 80 cols, Tailwind class sorting, warnings fail the build) live in the `lint`/`fmt` blocks of `vite.config.ts`, not in ESLint/Prettier config files.
 
@@ -32,9 +32,10 @@ Tests use in-memory SQLite (`phpunit.xml`); local dev also defaults to SQLite.
 
 **Request flow.** Routes in `routes/web.php` and `routes/settings.php` either use `Route::inertia(...)` for static pages or controllers that return `Inertia::render('page/name', props)`. The page name maps to `resources/js/pages/<name>.tsx`. `HandleInertiaRequests::share()` adds global props (`name`, `auth.user`, `sidebarOpen`); their TS types are in `resources/js/types/`.
 
-**Layouts are assigned by page name, not inside pages.** `resources/js/app.tsx` picks the layout from the page path: `welcome` → none, `auth/*` → `AuthLayout`, `settings/*` → `[AppLayout, SettingsLayout]`, everything else → `AppLayout`. Put new pages in the matching folder instead of wrapping them in a layout manually.
+**Layouts are assigned by page name, not inside pages.** `resources/js/app.tsx` picks the layout from the page path: `marketing/*` → `MarketingLayout` (the public storefront), `auth/*` → `AuthLayout`, `settings/*` → `[AppLayout, SettingsLayout]`, everything else → `AppLayout`. Put new pages in the matching folder instead of wrapping them in a layout manually. The same split picks the theme: pages outside `marketing/` and `auth/` get the `theme-admin` class on `<html>` (set in `app.blade.php` and kept in sync on navigation in `app.tsx`), which applies the admin palette and is the only place dark mode takes effect.
 
 **Auth is Fortify-driven.** Fortify registers the auth routes and controllers. The app only provides:
+
 - Inertia views wired up in `app/Providers/FortifyServiceProvider.php` (login, register, reset, verify, 2FA challenge, confirm password) and the rate limiters for `login`, `two-factor`, and `passkeys`.
 - Actions in `app/Actions/Fortify/`, with shared validation rules in `app/Concerns/*ValidationRules.php`.
 - Settings pages (profile, security/password/2FA/passkeys, appearance) via `app/Http/Controllers/Settings/*` and Form Requests in `app/Http/Requests/Settings/`.
@@ -61,6 +62,7 @@ The React Compiler is enabled through Babel in `vite.config.ts`, so manual `useM
 This application is a Laravel application running on PHP 8.5. Always use the APIs that match the installed major version of each package — do not assume a version.
 
 Before relying on a package's API, confirm its installed version:
+
 - PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
 - JS packages: check `package.json` for the installed versions.
 
@@ -131,7 +133,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
 - Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+    - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 

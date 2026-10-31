@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'app/Actions/Operators/**'
+    - 'app/Actions/Operators/**'
 ---
 
 # Operators
 
 ## A stale package manifest orphans media files on delete, silently
+
 medialibrary removes a file from disk in `MediaObserver::deleted`, and that observer is attached in `MediaLibraryServiceProvider::packageBooted()`. If `bootstrap/cache/packages.php` predates the package's installation, the provider never boots, the observer is never attached, and `$media->delete()` drops the row while leaving the bytes on disk.
 
 The symptom is misleading: UPLOADS KEEP WORKING, because `HasMedia`/`InteractsWithMedia` need no provider. Only deletion breaks, and it breaks in silence — `DefaultFileRemover` wraps its work in `catch (Exception) { report($e); }`, so even a real failure is a log line rather than an error.

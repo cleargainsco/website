@@ -17,6 +17,7 @@ layer per question ([`http.md`](http.md)). The exception is a check that must an
 `authorize()` raises a 403, so `UserController::authorizeRoster()` stays in the controller.
 
 This ensures:
+
 - Unauthorized requests are rejected immediately
 - No resources are wasted on unauthorized operations
 - Authorization is explicit and auditable
@@ -151,15 +152,16 @@ public function syncPassengers(
 
 The ability string passed to `authorize()` must exactly match the policy method name:
 
-| Controller Call | Policy Method |
-|-----------------|---------------|
-| `$this->authorize('viewAny', $organization)` | `UserPolicy::viewAny()` |
-| `$this->authorize('impersonate', $user)` | `UserPolicy::impersonate()` |
-| `$this->authorize('delete', $organization)` | `OrganizationPolicy::delete()` |
+| Controller Call                              | Policy Method                  |
+| -------------------------------------------- | ------------------------------ |
+| `$this->authorize('viewAny', $organization)` | `UserPolicy::viewAny()`        |
+| `$this->authorize('impersonate', $user)`     | `UserPolicy::impersonate()`    |
+| `$this->authorize('delete', $organization)`  | `OrganizationPolicy::delete()` |
 
 ## Examples
 
 ✅ **Good:**
+
 ```php
 public function update(UpdateBookingRequest $request, Booking $booking): RedirectResponse
 {
@@ -172,6 +174,7 @@ public function update(UpdateBookingRequest $request, Booking $booking): Redirec
 ```
 
 ❌ **Bad:**
+
 ```php
 public function update(UpdateBookingRequest $request, Booking $booking): RedirectResponse
 {
@@ -184,6 +187,7 @@ public function update(UpdateBookingRequest $request, Booking $booking): Redirec
 ```
 
 ❌ **Bad:**
+
 ```php
 public function update(UpdateBookingRequest $request, Booking $booking): RedirectResponse
 {

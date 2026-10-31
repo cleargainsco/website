@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'resources/js/**'
+    - 'resources/js/**'
 ---
 
 # Js
 
 ## Regenerate Wayfinder with --with-form, or the whole frontend stops type-checking
+
 Run `php artisan wayfinder:generate --with-form`, never the bare command.
 
 `vite.config.ts` configures the plugin with `formVariants: true`, so the generated helpers carry a `.form()` variant that ~15 source files use (`Controller.store.form()`, every auth page, settings, users, sync-review). The bare artisan command regenerates without form variants and silently strips `.form` from every helper — `npm run types:check` then fails across files nobody touched, and the cause is nowhere near the symptom.
@@ -13,6 +14,7 @@ Run `php artisan wayfinder:generate --with-form`, never the bare command.
 `resources/js/actions` and `resources/js/routes` are gitignored, so this does not show up in `git status` and cannot be fixed by checking anything out. Rerun with the flag, or let `npm run dev` / `npm run build` regenerate through the vite plugin, which always passes it.
 
 ## Format money with lib/money.ts, never a hardcoded /100
+
 Money arrives from App\Http\Resources\MoneyResource as `{ minor: number, currency: string }` — the integer in the currency's smallest unit, plus the ISO code. No formatted string is sent, on purpose: one rendered in PHP would carry the SERVER's locale, and the viewer's is the one that matters.
 
 Format with `formatMoney()` from `@/lib/money`, or `formatMoneyOr()` for the nullable columns. It leaves the Intl locale undefined, so a German broker gets a comma decimal separator without the server knowing anything about them.
@@ -32,6 +34,7 @@ a screen passes only the statuses it can name. A label uses the same word the re
 field ([`requests.md`](requests.md)).
 
 ## A failed visit is handled once, by handleFailedRequests
+
 `lib/request-failures.ts` answers every Inertia visit that fails without a validation answer, app-wide.
 A screen adds `onHttpException` or `onNetworkError` only for its own state (marking an upload row failed),
 never to word the failure or hide Inertia's dialog, and unlocks a control with `onFinish`. Return `false`
@@ -39,6 +42,7 @@ only where the screen already shows the failure in place: it skips the global ha
 reload included. `useHttp()` and query reads are not covered.
 
 ## Wire shapes live in types/, imported where needed
+
 A type describing what the SERVER sends gets its own file under `resources/js/types/` and is imported where it is needed — `import type { Money } from '@/types/money'`. It does not live in the `lib/` module that happens to use it first. `types/pagination.ts` (Paginated), `types/looks.ts` (LastLooksBoard, LastLookStat) and `types/money.ts` are all this shape, and components import them by path.
 
 Only the four cross-cutting modules are re-exported from `types/index.ts` — auth, enums, navigation, ui. Everything else is imported by its own path, so adding a wire shape does not mean touching the barrel.
@@ -48,12 +52,14 @@ The exception is a DERIVED type that only narrows something else and has no mean
 This has come up in review more than once. Put the type in `types/`, import it where needed.
 
 ## A control guards itself, and asks the clock
+
 - A control offered in more than one place is one component whose props `Omit` `disabled` and `onClick`, so it alone owns the enable rule. Callers pass the action as a callback, and the label where it varies (`bid-button.tsx`).
 - Ask the clock, not the status. "Still open?" is `urgencyOf(deadline, now)` from `lib/countdown.ts`, because a status waits for the sweep. A time-sensitive component ticks its own `useNow`.
 - A control that cannot act is disabled, not hidden, beside whatever says why.
 - Derive display state in a pure `lib/` function of the record and `now` (`contract-standing.ts`, `contract-progress.ts`); components only render it.
 
 ## Server vocabularies are enums from types/enums, styled in one lib/ map
+
 A value the server sends from a backed PHP enum is typed with its mirror in
 `types/enums.ts` and compared against a member — `look.stands.tone === LastLookTone.Urgent`,
 never `=== 'urgent'`. Do not declare a string-union `type` for one; `EnumMirrorsTest` can
@@ -74,6 +80,7 @@ never import such a map out of another component file (`toneClass` used to live 
 the map instead of silently falling back.
 
 ## Copy lives where it is shown; lang/ is only for words the server picks
+
 A label written once goes inline in the component that shows it, so a page says what is on it.
 
 A table of words keyed by a tab or a state goes in a words module under `lib/` (`contract-words.ts`, `awarded-words.ts`, `looks-words.ts`), with `:placeholders` filled by `fillWords()` from numbers the server sends as data (`hold_hours`, `contract_minutes`).

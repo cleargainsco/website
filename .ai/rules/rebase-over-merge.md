@@ -14,14 +14,14 @@ commits with yours in the branch's own history.
 
 ## Why
 
-A sync-merge records *when* somebody happened to sync, never a decision, and costs three things:
+A sync-merge records _when_ somebody happened to sync, never a decision, and costs three things:
 
 1. **`git log` on the branch stops being the branch**: `git log origin/develop..HEAD`
    returns your commits plus a merge, so "what does this branch change" needs a
    diff against the merge base instead of a list.
 2. **The second sync conflicts against the first.** A rebase resolves each
-   conflict once, in the commit that owns it; a merge resolves it *in the merge
-   commit*, so the next sync re-derives it — and `rerere` is deliberately
+   conflict once, in the commit that owns it; a merge resolves it _in the merge
+   commit_, so the next sync re-derives it — and `rerere` is deliberately
    **`false` in every lane here**.
 3. **Review reads the wrong diff**: the pull request shows files the author never touched.
 
@@ -41,7 +41,7 @@ what a reviewer wants to read, and what the release notes are generated from.
   commit is not in the branch's history, so a rewrite means recording again. Once
   published, rebasing is safe. `walkthroughs adopt` is a one-off repair, never the default.
 
-In those cases a merge is the correct tool. What this rule forbids is the *routine* sync-by-merge.
+In those cases a merge is the correct tool. What this rule forbids is the _routine_ sync-by-merge.
 
 ## Updating an already-pushed branch
 
@@ -61,7 +61,7 @@ remote ref leaves a stacked pull request conflicting with its base, and such a
 PR gets **no CI run at all**, silently.
 
 **The bare `--force` IS blocked**, in hard mode, with no approval path; the owner
-runs it. So is a bare `--force` written *beside* a lease, since it overrides the
+runs it. So is a bare `--force` written _beside_ a lease, since it overrides the
 lease. The guard matches the command string whether or not it would run, so keep
 that form out of a heredoc, a script body or a brief — put such text in a file
 with an editor tool rather than piping it through a shell.
