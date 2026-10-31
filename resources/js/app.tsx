@@ -1,6 +1,7 @@
 import { createInertiaApp, router } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import AccountLayout from '@/layouts/account-layout';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import MarketingLayout from '@/layouts/marketing-layout';
@@ -8,8 +9,10 @@ import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+const storefrontPagePrefixes = ['marketing/', 'account/', 'auth/'];
+
 const usesAdminTheme = (name: string): boolean =>
-    !name.startsWith('marketing/') && !name.startsWith('auth/');
+    !storefrontPagePrefixes.some((prefix) => name.startsWith(prefix));
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -17,6 +20,8 @@ void createInertiaApp({
         switch (true) {
             case name.startsWith('marketing/'):
                 return MarketingLayout;
+            case name.startsWith('account/'):
+                return [MarketingLayout, AccountLayout];
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):

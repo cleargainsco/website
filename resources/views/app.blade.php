@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class([
-    'theme-admin' => ! str($page['component'])->startsWith(['marketing/', 'auth/']),
+    'theme-admin' => ! str($page['component'])->startsWith(['marketing/', 'account/', 'auth/']),
     'dark' => ($appearance ?? 'system') == 'dark',
 ])>
     <head>

@@ -11,11 +11,17 @@ import { brandButton } from '@/lib/brand-button';
 import { primaryLinks } from '@/lib/storefront-links';
 import { cn } from '@/lib/utils';
 import { dashboard, home, login, register } from '@/routes';
+import { index as accountIndex } from '@/routes/account';
+import { Permission } from '@/types/enums';
 import { index as shop } from '@/routes/shop';
 
 export function SiteHeader() {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const { auth } = usePage().props;
+    const isAdmin = auth.permissions.includes(Permission.AdminAccess);
+    const accountLink = isAdmin
+        ? { href: dashboard(), label: 'Dashboard' }
+        : { href: accountIndex(), label: 'My account' };
 
     return (
         <header className="sticky top-0 z-40 border-b border-charcoal/10 bg-linen/90 backdrop-blur-md">
@@ -47,11 +53,11 @@ export function SiteHeader() {
                 <div className="hidden items-center gap-5 lg:flex">
                     {auth.user ? (
                         <Link
-                            href={dashboard()}
+                            href={accountLink.href}
                             className="inline-flex items-center gap-2 text-sm font-medium text-charcoal/70 hover:text-deep-ocean"
                         >
                             <UserRound className="size-4" />
-                            My account
+                            {accountLink.label}
                         </Link>
                     ) : (
                         <>
@@ -114,10 +120,10 @@ export function SiteHeader() {
                         <div className="mt-10 flex flex-col gap-3 border-t border-charcoal/10 pt-8">
                             {auth.user ? (
                                 <Link
-                                    href={dashboard()}
+                                    href={accountLink.href}
                                     className={brandButton()}
                                 >
-                                    My account
+                                    {accountLink.label}
                                 </Link>
                             ) : (
                                 <>

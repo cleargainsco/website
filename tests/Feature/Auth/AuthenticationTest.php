@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
@@ -19,7 +20,18 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('account.index', absolute: false));
+});
+
+test('admins land on the dashboard after logging in', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->followingRedirects()
+        ->post(route('login.store'), [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])
+        ->assertInertia(fn (Assert $page) => $page->component('dashboard'));
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {

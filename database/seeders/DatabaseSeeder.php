@@ -1,25 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
-class DatabaseSeeder extends Seeder
+final class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        throw_unless(
+            app()->environment('local', 'testing'),
+            RuntimeException::class,
+            'DatabaseSeeder creates users with a known password. Deployments run ReferenceDataSeeder instead.',
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call(ReferenceDataSeeder::class);
+
+        User::factory()->admin()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+        ]);
+
+        User::factory()->customer()->create([
+            'name' => 'Test Customer',
+            'email' => 'customer@example.com',
         ]);
     }
 }

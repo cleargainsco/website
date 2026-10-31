@@ -1,3 +1,5 @@
+import type { Permission } from '@/types/enums';
+
 export type User = {
     id: number;
     name: string;
@@ -12,6 +14,7 @@ export type User = {
 
 export type Auth = {
     user: User;
+    permissions: Permission[];
 };
 
 export type Passkey = {

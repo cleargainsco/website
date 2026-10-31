@@ -3,3 +3,7 @@ export enum StockStatus {
     LowStock = 'low_stock',
     OutOfStock = 'out_of_stock',
 }
+
+export enum Permission {
+    AdminAccess = 'admin.access',
+}
