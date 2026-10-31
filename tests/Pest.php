@@ -1,6 +1,9 @@
 <?php
 
+use App\Handlers\ProductTypes\ResearchPeptideProductType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Shop\Database\Factories\ProductFactory;
+use Shop\Models\Product;
 use Tests\TestCase;
 
 /*
@@ -47,4 +50,12 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function researchPeptide(string $amount = '10 mg'): ProductFactory
+{
+    return Product::factory()->state([
+        'type' => ResearchPeptideProductType::KEY,
+        'details' => ['amount' => $amount],
+    ]);
 }

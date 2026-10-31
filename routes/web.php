@@ -9,4 +9,5 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])->
 
 require __DIR__.'/storefront.php';
 require __DIR__.'/account.php';
+require __DIR__.'/admin.php';
 require __DIR__.'/settings.php';

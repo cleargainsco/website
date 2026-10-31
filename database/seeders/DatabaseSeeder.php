@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use RuntimeException;
+use Shop\Models\Product;
 
 final class DatabaseSeeder extends Seeder
 {
@@ -21,7 +22,9 @@ final class DatabaseSeeder extends Seeder
             'DatabaseSeeder creates users with a known password. Deployments run ReferenceDataSeeder instead.',
         );
 
-        $this->call(ReferenceDataSeeder::class);
+        $this->call([ReferenceDataSeeder::class, CatalogSeeder::class]);
+
+        Product::query()->where('stock', 0)->update(['stock' => 50]);
 
         User::factory()->admin()->create([
             'name' => 'Admin User',

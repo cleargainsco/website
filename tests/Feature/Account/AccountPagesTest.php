@@ -44,7 +44,7 @@ test('the page shares what the user is allowed to do, without their roles', func
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('auth.permissions', [Permission::AdminAccess->value])
+            ->where('auth.permissions', Permission::values())
             ->missing('auth.user.roles')
             ->missing('auth.user.permissions'),
         );

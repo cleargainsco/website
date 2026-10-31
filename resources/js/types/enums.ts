@@ -6,4 +6,10 @@ export enum StockStatus {
 
 export enum Permission {
     AdminAccess = 'admin.access',
+    ProductsManage = 'products.manage',
+}
+
+export enum FieldKind {
+    Text = 'text',
+    Textarea = 'textarea',
 }

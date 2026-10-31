@@ -7,6 +7,7 @@ namespace App\Enums;
 enum Permission: string
 {
     case AdminAccess = 'admin.access';
+    case ProductsManage = 'products.manage';
 
     /**
      * @return array<int, string>

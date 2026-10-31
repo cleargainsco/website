@@ -2,11 +2,15 @@
 
 namespace App\Providers;
 
+use App\Policies\ProductPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Shop\Models\Product;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Gate::policy(Product::class, ProductPolicy::class);
+
+        JsonResource::withoutWrapping();
     }
 
     /**

@@ -9,5 +9,8 @@ parameters:
         - config/
         - database/
         - routes/
+        - packages/shop/src/
+        - packages/shop/database/
+        - packages/shop/config/
 
     level: 7
