@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Handlers\ProductTypes\ResearchPeptideProductType;
+use App\Models\ProductBatch;
 use Brick\Money\Money as BrickMoney;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -15,9 +16,8 @@ use Shop\Models\ProductPrice;
 /**
  * @phpstan-type Money array{minor: int, currency: string}
  * @phpstan-type PriceTier array{quantity: int, unit: Money, total: Money}
- * @phpstan-type Batch array{number: string, tested_at: string, purity: string|null, lab: string|null, report_url: string}
- * @phpstan-type Product array{slug: string, name: string, amount: string, summary: string, image_url: string|null, stock: StockStatus, storage: string, featured: bool, price: Money, tiers: list<PriceTier>, batches: list<Batch>}
- * @phpstan-type ConfiguredBatch array{number: string, tested_at: string, purity?: string, lab?: string, report: string}
+ * @phpstan-type Batch array{number: string, tested_at: string, purity: string|null, lab: string|null, report_url: string|null}
+ * @phpstan-type Product array{id: string, slug: string, name: string, amount: string, summary: string, image_url: string|null, stock: StockStatus, storage: string, featured: bool, price: Money, tiers: list<PriceTier>, batches: list<Batch>}
  */
 final class Storefront
 {
@@ -26,7 +26,7 @@ final class Storefront
      */
     public function products(): Collection
     {
-        return $this->query()->get()->map(fn (ShopProduct $product): array => $this->present($product));
+        return $this->presentAll($this->query()->get());
     }
 
     /**
@@ -34,7 +34,7 @@ final class Storefront
      */
     public function featured(): Collection
     {
-        return $this->query()->featured()->get()->map(fn (ShopProduct $product): array => $this->present($product));
+        return $this->presentAll($this->query()->featured()->get());
     }
 
     /**
@@ -42,7 +42,29 @@ final class Storefront
      */
     public function find(string $slug): array
     {
-        return $this->present($this->query()->where('slug', $slug)->firstOrFail());
+        $product = $this->query()->where('slug', $slug)->firstOrFail();
+
+        return $this->presentAll(collect([$product]))->sole();
+    }
+
+    /**
+     * @param  Collection<int, ShopProduct>  $products
+     * @return Collection<int, Product>
+     */
+    private function presentAll(Collection $products): Collection
+    {
+        $batches = ProductBatch::query()
+            ->whereIn('product_id', $products->pluck('id'))
+            ->whereHas('media')
+            ->with('media')
+            ->latest('tested_at')
+            ->latest('id')
+            ->get()
+            ->groupBy('product_id');
+
+        return $products
+            ->map(fn (ShopProduct $product): array => $this->present($product, $batches->get($product->id, collect())))
+            ->values();
     }
 
     /**
@@ -62,9 +84,10 @@ final class Storefront
     }
 
     /**
+     * @param  Collection<int, ProductBatch>  $batches
      * @return Product
      */
-    private function present(ShopProduct $product): array
+    private function present(ShopProduct $product, Collection $batches): array
     {
         $tiers = array_values($product->prices
             ->map(fn (ProductPrice $price): array => [
@@ -74,10 +97,8 @@ final class Storefront
             ])
             ->all());
 
-        /** @var list<ConfiguredBatch> $batches */
-        $batches = config("storefront.batches.{$product->slug}", []);
-
         return [
+            'id' => $product->public_id,
             'slug' => $product->slug,
             'name' => $product->name,
             'amount' => $product->details['amount'] ?? '',
@@ -88,13 +109,13 @@ final class Storefront
             'featured' => $product->is_featured,
             'price' => $tiers[0]['unit'],
             'tiers' => $tiers,
-            'batches' => array_values(collect($batches)
-                ->map(fn (array $batch): array => [
-                    'number' => $batch['number'],
-                    'tested_at' => $batch['tested_at'],
-                    'purity' => $batch['purity'] ?? null,
-                    'lab' => $batch['lab'] ?? null,
-                    'report_url' => asset('coas/'.$batch['report']),
+            'batches' => array_values($batches
+                ->map(fn (ProductBatch $batch): array => [
+                    'number' => $batch->number,
+                    'tested_at' => $batch->tested_at->toDateString(),
+                    'purity' => $batch->purity,
+                    'lab' => $batch->lab,
+                    'report_url' => $batch->certificateUrl(),
                 ])
                 ->all()),
         ];

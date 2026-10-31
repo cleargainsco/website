@@ -7,8 +7,10 @@ namespace Shop;
 use Illuminate\Support\ServiceProvider;
 use Shop\Contracts\OrderHistory;
 use Shop\Contracts\PriceResolver;
-use Shop\Orders\NoOrderHistory;
+use Shop\Contracts\ShippingCalculator;
+use Shop\Orders\DatabaseOrderHistory;
 use Shop\Pricing\TieredPriceResolver;
+use Shop\Shipping\FlatRateShipping;
 
 final class ShopServiceProvider extends ServiceProvider
 {
@@ -21,7 +23,8 @@ final class ShopServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(PriceResolver::class, TieredPriceResolver::class);
-        $this->app->bind(OrderHistory::class, NoOrderHistory::class);
+        $this->app->bind(OrderHistory::class, DatabaseOrderHistory::class);
+        $this->app->bind(ShippingCalculator::class, FlatRateShipping::class);
     }
 
     public function boot(): void

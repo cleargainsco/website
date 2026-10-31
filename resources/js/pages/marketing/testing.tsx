@@ -4,6 +4,7 @@ import { Eyebrow } from '@/components/marketing/eyebrow';
 import { PageHero } from '@/components/marketing/page-hero';
 import { show } from '@/routes/shop';
 import type { Product } from '@/types/storefront';
+import { formatDate } from '@/lib/dates';
 
 const steps = [
     {
@@ -135,9 +136,9 @@ export default function Testing({ products }: { products: Product[] }) {
                                                                 {batch.number}
                                                             </td>
                                                             <td className="py-3 text-charcoal/70">
-                                                                {
-                                                                    batch.tested_at
-                                                                }
+                                                                {formatDate(
+                                                                    batch.tested_at,
+                                                                )}
                                                             </td>
                                                             <td className="py-3 text-charcoal/70">
                                                                 {batch.purity ??
@@ -150,7 +151,8 @@ export default function Testing({ products }: { products: Product[] }) {
                                                             <td className="py-3 text-right">
                                                                 <a
                                                                     href={
-                                                                        batch.report_url
+                                                                        batch.report_url ??
+                                                                        undefined
                                                                     }
                                                                     className="inline-flex items-center gap-1.5 font-medium text-deep-ocean hover:text-ocean"
                                                                 >

@@ -12,10 +12,11 @@ export type Batch = {
     tested_at: string;
     purity: string | null;
     lab: string | null;
-    report_url: string;
+    report_url: string | null;
 };
 
 export type Product = {
+    id: string;
     slug: string;
     name: string;
     amount: string;

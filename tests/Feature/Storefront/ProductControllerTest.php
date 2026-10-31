@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
+use App\Models\ProductBatch;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Shop\Models\Product;
 
 beforeEach(function () {
-    config([
-        'storefront.storage' => 'Keep frozen.',
-        'storefront.batches' => [
-            'alpha-10mg' => [
-                ['number' => 'A-002', 'tested_at' => '2026-10-01', 'purity' => '99.1%', 'lab' => 'Lab One', 'report' => 'alpha-a-002.pdf'],
-            ],
-        ],
-    ]);
+    Storage::fake('public');
+    config(['storefront.storage' => 'Keep frozen.']);
 
-    researchPeptide('10 mg')->featured()->priced([1 => 5000, 3 => 4500])
+    $alpha = researchPeptide('10 mg')->featured()->priced([1 => 5000, 3 => 4500])
         ->create(['slug' => 'alpha-10mg', 'name' => 'Alpha', 'sort_order' => 1, 'stock' => 40]);
+
+    ProductBatch::factory()->for($alpha)->create(['number' => 'A-001', 'tested_at' => '2026-06-01'])
+        ->addMedia(fakePdf('a-001.pdf'))->toMediaCollection(ProductBatch::CERTIFICATE_COLLECTION);
+    ProductBatch::factory()->for($alpha)->create(['number' => 'A-002', 'tested_at' => '2026-10-01', 'purity' => '99.1%'])
+        ->addMedia(fakePdf('a-002.pdf'))->toMediaCollection(ProductBatch::CERTIFICATE_COLLECTION);
+    ProductBatch::factory()->for($alpha)->create(['number' => 'NO-PDF', 'tested_at' => '2026-10-20']);
 
     researchPeptide('5 mg')->priced([1 => 3000])
         ->create(['slug' => 'beta-5mg', 'name' => 'Beta', 'sort_order' => 2, 'stock' => 0, 'details' => ['amount' => '5 mg', 'storage' => 'Keep refrigerated.']]);
@@ -60,19 +61,23 @@ describe('index', function () {
 });
 
 describe('show', function () {
-    it('renders the product with its batch report and the other products as related', function () {
+    it('renders the product with its batches newest first and the other products as related', function () {
         $this->get(route('shop.show', 'alpha-10mg'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('marketing/shop/show')
                 ->where('product.slug', 'alpha-10mg')
-                ->where('product.batches.0.report_url', asset('coas/alpha-a-002.pdf'))
+                ->has('product.batches', 2)
+                ->where('product.batches.0.number', 'A-002')
+                ->where('product.batches.0.tested_at', '2026-10-01')
+                ->where('product.batches.0.purity', '99.1%')
+                ->where('product.batches.0.report_url', fn (string $url) => str_ends_with($url, 'a-002.pdf'))
+                ->where('product.batches.1.number', 'A-001')
                 ->has('related', 1)
                 ->where('related.0.slug', 'beta-5mg'));
     });
 
     it('includes the product photo when there is one', function () {
-        Storage::fake('public');
         $product = Product::query()->where('slug', 'alpha-10mg')->sole();
         $product->addMedia(UploadedFile::fake()->image('alpha.webp'))->toMediaCollection(Product::IMAGE_COLLECTION);
 

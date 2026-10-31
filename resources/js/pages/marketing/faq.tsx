@@ -28,9 +28,11 @@ export default function Faq() {
                 <div className="space-y-14">
                     <FaqGroup title="Ordering">
                         <Question q="How do I place an order?">
-                            Online checkout is opening soon. Until then, email
-                            us the products and quantities you need and we'll
-                            confirm availability, your total and how to pay.
+                            Add products to your cart and check out with a Clear
+                            Gains account. No payment is taken at checkout: we
+                            reserve your items and email you an invoice with
+                            payment instructions, and your order ships once
+                            payment is received.
                         </Question>
                         <Question q="How does bulk pricing work?">
                             The price per vial drops at 3, 6 and 10 vials of the
@@ -38,8 +40,8 @@ export default function Faq() {
                             vials of different products aren't combined.
                         </Question>
                         <Question q="Are tax and shipping included?">
-                            No. Prices are per vial; tax and shipping are added
-                            to your order total.
+                            No. Prices are per vial; shipping and any tax are
+                            confirmed on your invoice.
                         </Question>
                         <Question q="Who can order?">
                             Our products are sold strictly for laboratory

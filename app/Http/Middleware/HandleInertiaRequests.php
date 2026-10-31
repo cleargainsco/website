@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Shop\Cart\Cart;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -43,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $request->user()?->getAllPermissions()->pluck('name')->all() ?? [],
             ],
             'supportEmail' => config('storefront.support_email'),
+            'cartCount' => fn (): int => app(Cart::class)->count(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -50,3 +50,12 @@ export type ProductFormData = {
     is_featured: boolean;
     prices: ProductPriceInput[];
 };
+
+export type AdminProductBatch = {
+    id: string;
+    number: string;
+    tested_at: string;
+    purity: string | null;
+    lab: string | null;
+    certificate_url: string | null;
+};

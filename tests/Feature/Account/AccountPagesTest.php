@@ -6,7 +6,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 dataset('account pages', [
     'overview' => ['account.index', 'account/index'],
-    'orders' => ['account.orders.index', 'account/orders'],
+    'orders' => ['account.orders.index', 'account/orders/index'],
     'profile' => ['account.profile.edit', 'account/profile'],
 ]);
 

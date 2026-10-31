@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, UserRound } from 'lucide-react';
+import { Menu, ShoppingBag, UserRound } from 'lucide-react';
 import {
     Sheet,
     SheetContent,
@@ -12,12 +12,13 @@ import { primaryLinks } from '@/lib/storefront-links';
 import { cn } from '@/lib/utils';
 import { dashboard, home, login, register } from '@/routes';
 import { index as accountIndex } from '@/routes/account';
+import { show as cartShow } from '@/routes/cart';
 import { Permission } from '@/types/enums';
 import { index as shop } from '@/routes/shop';
 
 export function SiteHeader() {
     const { isCurrentOrParentUrl } = useCurrentUrl();
-    const { auth } = usePage().props;
+    const { auth, cartCount } = usePage().props;
     const isAdmin = auth.permissions.includes(Permission.AdminAccess);
     const accountLink = isAdmin
         ? { href: dashboard(), label: 'Dashboard' }
@@ -50,7 +51,12 @@ export function SiteHeader() {
                     ))}
                 </nav>
 
+                <div className="ml-auto flex items-center lg:hidden">
+                    <CartLink count={cartCount} />
+                </div>
+
                 <div className="hidden items-center gap-5 lg:flex">
+                    <CartLink count={cartCount} />
                     {auth.user ? (
                         <Link
                             href={accountLink.href}
@@ -148,5 +154,26 @@ export function SiteHeader() {
                 </Sheet>
             </div>
         </header>
+    );
+}
+
+function CartLink({ count }: { count: number }) {
+    return (
+        <Link
+            href={cartShow()}
+            className="relative rounded-full p-2 text-charcoal/70 transition-colors hover:bg-sand/60 hover:text-deep-ocean"
+            aria-label={
+                count > 0
+                    ? `Cart, ${count} ${count === 1 ? 'item' : 'items'}`
+                    : 'Cart'
+            }
+        >
+            <ShoppingBag className="size-5" />
+            {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-deep-ocean px-1 text-[0.65rem] leading-5 font-semibold text-linen">
+                    {count > 99 ? '99+' : count}
+                </span>
+            )}
+        </Link>
     );
 }

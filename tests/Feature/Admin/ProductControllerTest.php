@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
-use Shop\Contracts\OrderHistory;
+use Shop\Models\Order;
 use Shop\Models\Product;
 use Shop\Models\ProductPrice;
 
@@ -248,14 +248,8 @@ describe('remove', function () {
     });
 
     test('a product that has been ordered is archived instead, out of the list and the shop', function () {
-        app()->instance(OrderHistory::class, new class implements OrderHistory
-        {
-            public function hasBeenOrdered(Product $product): bool
-            {
-                return true;
-            }
-        });
         $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+        Order::factory()->forProduct($product)->create();
         $this->actingAs(User::factory()->admin()->create());
 
         $this->delete(route('admin.products.destroy', $product))

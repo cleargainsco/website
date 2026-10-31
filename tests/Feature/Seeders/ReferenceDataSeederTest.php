@@ -14,7 +14,7 @@ test('it syncs roles and permissions to the enums and is safe to re-run', functi
     $this->seed(ReferenceDataSeeder::class);
 
     expect(Role::query()->orderBy('name')->pluck('name')->all())->toBe(RoleName::values())
-        ->and(PermissionModel::query()->pluck('name')->all())->toBe(Permission::values())
+        ->and(PermissionModel::query()->pluck('name')->sort()->values()->all())->toBe(collect(Permission::values())->sort()->values()->all())
         ->and(Role::findByName(RoleName::Admin->value)->hasPermissionTo(Permission::AdminAccess->value))->toBeTrue()
         ->and(Role::findByName(RoleName::Customer->value)->permissions)->toBeEmpty();
 });

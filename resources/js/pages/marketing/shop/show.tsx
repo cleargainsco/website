@@ -1,6 +1,7 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { ChevronRight, Download, FileClock } from 'lucide-react';
 import { useState } from 'react';
+import CartItemController from '@/actions/App/Http/Controllers/Storefront/CartItemController';
 import { Eyebrow } from '@/components/marketing/eyebrow';
 import { ProductCard } from '@/components/marketing/product-card';
 import { ResearchUseNotice } from '@/components/marketing/research-use-notice';
@@ -97,27 +98,53 @@ export default function ShopShow({
                                 {formatMoney(tier.total)}
                             </span>
                         </div>
-                        <button
-                            type="button"
-                            disabled
-                            className={brandButton({
-                                className: 'mt-5 w-full',
-                            })}
+                        <Form
+                            {...CartItemController.store.form()}
+                            options={{ preserveScroll: true }}
+                            className="mt-5"
                         >
-                            {product.stock === StockStatus.OutOfStock
-                                ? 'Out of stock'
-                                : 'Add to cart'}
-                        </button>
-                        <p className="mt-3 text-center text-xs text-charcoal/60">
-                            Online checkout opens soon. To order now, email{' '}
-                            <a
-                                href={`mailto:${supportEmail}?subject=${encodeURIComponent(`Order: ${title} × ${tier.quantity}`)}`}
-                                className="font-medium text-deep-ocean underline-offset-2 hover:underline"
-                            >
-                                {supportEmail}
-                            </a>
-                            .
-                        </p>
+                            {({ processing, errors }) => (
+                                <>
+                                    <input
+                                        type="hidden"
+                                        name="product"
+                                        value={product.id}
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="quantity"
+                                        value={tier.quantity}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={
+                                            processing ||
+                                            product.stock ===
+                                                StockStatus.OutOfStock
+                                        }
+                                        className={brandButton({
+                                            className: 'w-full',
+                                        })}
+                                    >
+                                        {product.stock ===
+                                        StockStatus.OutOfStock
+                                            ? 'Out of stock'
+                                            : 'Add to cart'}
+                                    </button>
+                                    {errors.quantity && (
+                                        <p className="mt-3 text-center text-sm text-red-700">
+                                            {errors.quantity}
+                                        </p>
+                                    )}
+                                    <p className="mt-3 text-center text-xs text-charcoal/60">
+                                        {product.stock ===
+                                        StockStatus.OutOfStock
+                                            ? `Back soon. Email ${supportEmail} to hear when it's restocked.`
+                                            : 'Shipping and any tax are confirmed on your invoice.'}
+                                    </p>
+                                </>
+                            )}
+                        </Form>
                     </div>
 
                     <dl className="mt-8 divide-y divide-charcoal/10 border-y border-charcoal/10">
@@ -127,7 +154,7 @@ export default function ShopShow({
                         <Detail term="Batch COA">
                             {latestBatch ? (
                                 <a
-                                    href={latestBatch.report_url}
+                                    href={latestBatch.report_url ?? undefined}
                                     className="inline-flex items-center gap-2 font-medium text-deep-ocean hover:text-ocean"
                                 >
                                     <Download className="size-4" />

@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Http\Resources\Admin\ProductBatchResource;
 use App\Http\Resources\Admin\ProductFormResource;
 use App\Http\Resources\Admin\ProductResource;
+use App\Models\ProductBatch;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -57,6 +59,9 @@ final class ProductController extends Controller
         return $this->productsPage([
             'sheet' => 'edit',
             'product' => $product->load(['prices', 'media'])->toResource(ProductFormResource::class),
+            'batches' => ProductBatchResource::collection(
+                ProductBatch::query()->whereBelongsTo($product)->with('media')->latest('tested_at')->latest('id')->get(),
+            ),
             'productTypes' => $this->productTypes($types),
             'currency' => config()->string('shop.currency'),
         ]);

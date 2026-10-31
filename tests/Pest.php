@@ -2,6 +2,7 @@
 
 use App\Handlers\ProductTypes\ResearchPeptideProductType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Shop\Database\Factories\ProductFactory;
 use Shop\Models\Product;
 use Tests\TestCase;
@@ -58,4 +59,9 @@ function researchPeptide(string $amount = '10 mg'): ProductFactory
         'type' => ResearchPeptideProductType::KEY,
         'details' => ['amount' => $amount],
     ]);
+}
+
+function fakePdf(string $name = 'coa.pdf'): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF\n");
 }

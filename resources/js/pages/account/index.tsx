@@ -2,11 +2,17 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Mail } from 'lucide-react';
 import { AccountPanel } from '@/components/account/account-panel';
 import { NoOrders } from '@/components/account/no-orders';
+import { OrderList } from '@/components/account/order-list';
 import { brandButton } from '@/lib/brand-button';
 import { index as ordersIndex } from '@/routes/account/orders';
 import { edit as editProfile } from '@/routes/account/profile';
+import type { Order } from '@/types/shop';
 
-export default function AccountOverview() {
+export default function AccountOverview({
+    recentOrders,
+}: {
+    recentOrders: Order[];
+}) {
     const { auth, supportEmail } = usePage().props;
 
     return (
@@ -25,7 +31,11 @@ export default function AccountOverview() {
                         </Link>
                     }
                 >
-                    <NoOrders />
+                    {recentOrders.length === 0 ? (
+                        <NoOrders />
+                    ) : (
+                        <OrderList orders={recentOrders} />
+                    )}
                 </AccountPanel>
 
                 <div className="space-y-6">

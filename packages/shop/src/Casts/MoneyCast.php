@@ -11,9 +11,9 @@ use InvalidArgumentException;
 
 /**
  * Reads a minor-units column as a Money in the row's own currency. Writes accept a
- * Money in that currency, or an int of minor units. It never writes the currency.
+ * Money in that currency, an int of minor units, or null for a nullable column. It never writes the currency.
  *
- * @implements CastsAttributes<Money, Money|int>
+ * @implements CastsAttributes<Money, mixed>
  */
 final readonly class MoneyCast implements CastsAttributes
 {
@@ -34,9 +34,9 @@ final readonly class MoneyCast implements CastsAttributes
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): int
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?int
     {
-        if (is_int($value)) {
+        if ($value === null || is_int($value)) {
             return $value;
         }
 

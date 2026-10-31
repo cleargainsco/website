@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Handlers\ProductTypes\ResearchPeptideProductType;
+use App\Models\User;
 
 return [
 
@@ -17,6 +18,23 @@ return [
     'images' => [
         'max_dimension' => 2000,
         'quality' => 80,
+    ],
+
+    /*
+     * The model orders belong to. Checkout requires an account, so every order has one.
+     */
+    'customer_model' => User::class,
+
+    'orders' => [
+        'number_prefix' => 'CG-',
+    ],
+
+    /*
+     * A flat charge per order in major units, e.g. '9.95'. Left empty, shipping is
+     * confirmed with the invoice.
+     */
+    'shipping' => [
+        'flat_rate' => env('SHOP_SHIPPING_FLAT_RATE'),
     ],
 
     /*

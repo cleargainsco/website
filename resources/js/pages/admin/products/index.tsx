@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
 import ProductRestorationController from '@/actions/App/Http/Controllers/Admin/ProductRestorationController';
+import { ProductBatchesPanel } from '@/components/admin/product-batches-panel';
 import { ProductForm } from '@/components/admin/product-form';
 import { ConfirmActionDialog } from '@/components/confirm-action-dialog';
 import Heading from '@/components/heading';
@@ -30,6 +31,7 @@ import { create, edit, index } from '@/routes/admin/products';
 import { index as archivedIndex } from '@/routes/admin/products/archived';
 import type {
     AdminProduct,
+    AdminProductBatch,
     ProductFormData,
     ProductTypeOption,
 } from '@/types/admin-products';
@@ -44,6 +46,7 @@ type SheetProps =
     | {
           sheet: 'edit';
           product: ProductFormData;
+          batches: AdminProductBatch[];
           productTypes: ProductTypeOption[];
           currency: string;
       };
@@ -344,6 +347,7 @@ export default function ProductsIndex(props: Props) {
 
 function ProductSheet(props: Exclude<Props, { sheet?: undefined }>) {
     const [open, setOpen] = useState(true);
+    const [tab, setTab] = useState<'details' | 'batches'>('details');
     const product = props.sheet === 'edit' ? props.product : undefined;
 
     const close = () => {
@@ -364,18 +368,57 @@ function ProductSheet(props: Exclude<Props, { sheet?: undefined }>) {
                             : 'Set its details, prices and stock.'}
                     </SheetDescription>
                 </SheetHeader>
-                <ProductForm
-                    action={
-                        product
-                            ? ProductController.update.form(product.id)
-                            : ProductController.store.form()
-                    }
-                    productTypes={props.productTypes}
-                    currency={props.currency}
-                    product={product}
-                    submitLabel={product ? 'Save changes' : 'Create product'}
-                    onCancel={close}
-                />
+                {props.sheet === 'edit' && (
+                    <nav
+                        className="flex gap-1 border-b px-6"
+                        aria-label="Product sections"
+                    >
+                        {(
+                            [
+                                ['details', 'Details'],
+                                [
+                                    'batches',
+                                    `Batches & COAs (${props.batches.length})`,
+                                ],
+                            ] as const
+                        ).map(([key, label]) => (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => setTab(key)}
+                                className={cn(
+                                    '-mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors',
+                                    tab === key
+                                        ? 'border-primary text-foreground'
+                                        : 'border-transparent text-muted-foreground hover:text-foreground',
+                                )}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </nav>
+                )}
+                {props.sheet === 'edit' && tab === 'batches' ? (
+                    <ProductBatchesPanel
+                        productId={props.product.id}
+                        batches={props.batches}
+                    />
+                ) : (
+                    <ProductForm
+                        action={
+                            product
+                                ? ProductController.update.form(product.id)
+                                : ProductController.store.form()
+                        }
+                        productTypes={props.productTypes}
+                        currency={props.currency}
+                        product={product}
+                        submitLabel={
+                            product ? 'Save changes' : 'Create product'
+                        }
+                        onCancel={close}
+                    />
+                )}
             </SheetContent>
         </Sheet>
     );
