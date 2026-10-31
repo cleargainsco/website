@@ -8,10 +8,13 @@ use Database\Factories\UserFactory;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Hash;
 
-test('it seeds the fixture accounts on staging', function () {
+test('it seeds the fixture accounts on staging, and a second run leaves them alone', function () {
     app()->detectEnvironment(fn (): string => 'staging');
 
     $this->seed(DatabaseSeeder::class);
+    $this->seed(DatabaseSeeder::class);
+
+    expect(User::query()->count())->toBe(2);
 
     $admin = User::query()->where('email', 'admin@example.com')->sole();
 
