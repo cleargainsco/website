@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import { Eyebrow } from '@/components/marketing/eyebrow';
 import { PageHero } from '@/components/marketing/page-hero';
@@ -23,13 +23,6 @@ const values = [
 export default function About() {
     return (
         <>
-            <Head title="About">
-                <meta
-                    name="description"
-                    content="Who Clear Gains is, and our approach to transparency and customer service."
-                />
-            </Head>
-
             <PageHero eyebrow="About" title="Who we are">
                 Clear Gains is a research peptide supplier built on a simple
                 idea: researchers should be able to see exactly what they are

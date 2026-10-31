@@ -1,4 +1,4 @@
-import { Form, Head, usePage } from '@inertiajs/react';
+import { Form, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
@@ -26,8 +26,6 @@ export default function Profile({
 
     return (
         <>
-            <Head title="Profile settings" />
-
             <h1 className="sr-only">Profile settings</h1>
 
             <div className="space-y-6">

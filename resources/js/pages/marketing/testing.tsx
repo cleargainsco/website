@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Download, FileClock } from 'lucide-react';
 import { Eyebrow } from '@/components/marketing/eyebrow';
 import { PageHero } from '@/components/marketing/page-hero';
@@ -26,13 +26,6 @@ export default function Testing({ products }: { products: Product[] }) {
 
     return (
         <>
-            <Head title="Testing & COAs">
-                <meta
-                    name="description"
-                    content="Certificates of analysis for every Clear Gains product, organised by product and batch."
-                />
-            </Head>
-
             <PageHero
                 eyebrow="Testing & COAs"
                 title="Every batch, on the record"

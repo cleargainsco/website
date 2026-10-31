@@ -9,6 +9,7 @@ enum Permission: string
     case AdminAccess = 'admin.access';
     case ProductsManage = 'products.manage';
     case OrdersManage = 'orders.manage';
+    case SeoManage = 'seo.manage';
 
     /**
      * @return array<int, string>

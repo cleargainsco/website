@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ArrowRight, FileCheck2, MessagesSquare, Tags } from 'lucide-react';
 import { Eyebrow } from '@/components/marketing/eyebrow';
 import { MountainRange } from '@/components/marketing/mountain-range';
@@ -31,13 +31,6 @@ const motto = ['Cleaner', 'Purer', 'Brighter', 'Stronger', 'Progress'];
 export default function Home({ products }: { products: Product[] }) {
     return (
         <>
-            <Head title="Research peptides">
-                <meta
-                    name="description"
-                    content="Clear Gains supplies research peptides with batch-level certificates of analysis, transparent pricing and responsive support."
-                />
-            </Head>
-
             <section className="relative overflow-hidden">
                 <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 pt-14 pb-32 lg:grid-cols-[1fr_1.1fr] lg:px-8 lg:pt-20 lg:pb-44">
                     <div>

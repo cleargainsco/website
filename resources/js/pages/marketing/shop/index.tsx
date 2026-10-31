@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import { Eyebrow } from '@/components/marketing/eyebrow';
 import { PageHero } from '@/components/marketing/page-hero';
 import { PriceList } from '@/components/marketing/price-list';
@@ -9,13 +8,6 @@ import type { Product } from '@/types/storefront';
 export default function ShopIndex({ products }: { products: Product[] }) {
     return (
         <>
-            <Head title="Shop">
-                <meta
-                    name="description"
-                    content="The Clear Gains research peptide catalog, with per-vial and bulk pricing."
-                />
-            </Head>
-
             <PageHero eyebrow="Shop" title="The catalog">
                 Every compound is supplied as a lyophilized powder in a sealed
                 vial, labelled with its batch number. Prices are per vial and

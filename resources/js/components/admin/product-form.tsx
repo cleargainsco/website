@@ -1,7 +1,8 @@
 import { Form } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { ProductImageField } from '@/components/admin/product-image-field';
+import { ImageField } from '@/components/admin/image-field';
+import { SeoFields } from '@/components/admin/seo-fields';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -180,8 +181,11 @@ export function ProductForm({
                         </Section>
 
                         <Section title="Image">
-                            <ProductImageField
+                            <ImageField
+                                name="image"
+                                removeName="remove_image"
                                 currentUrl={product?.image_url ?? null}
+                                help="JPG, PNG or WebP, up to 10 MB. Large photos are resized and converted to WebP when you save."
                                 error={errors.image}
                             />
                         </Section>
@@ -345,6 +349,25 @@ export function ProductForm({
                                     Add tier
                                 </Button>
                             </div>
+                        </Section>
+
+                        <Section
+                            title="Search and sharing"
+                            description="How this product appears in Google and in link previews. The product image is used as the share image."
+                        >
+                            <SeoFields
+                                titleName="meta_title"
+                                descriptionName="meta_description"
+                                title={product?.meta_title ?? null}
+                                description={product?.meta_description ?? null}
+                                fallbackTitle={product?.name || 'Product name'}
+                                fallbackDescription={
+                                    product?.summary ||
+                                    'The product summary is used until you write one.'
+                                }
+                                url={`${window.location.origin}/shop/${slug || 'your-product'}`}
+                                errors={errors}
+                            />
                         </Section>
 
                         <Section title="Stock and visibility">

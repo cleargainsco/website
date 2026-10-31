@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { ChevronRight, Download, FileClock } from 'lucide-react';
 import { useState } from 'react';
 import CartItemController from '@/actions/App/Http/Controllers/Storefront/CartItemController';
@@ -32,10 +32,6 @@ export default function ShopShow({
 
     return (
         <>
-            <Head title={title}>
-                <meta name="description" content={product.summary} />
-            </Head>
-
             <div className="mx-auto max-w-7xl px-6 pt-8 lg:px-8">
                 <nav
                     aria-label="Breadcrumb"

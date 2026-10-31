@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import CheckoutController from '@/actions/App/Http/Controllers/Storefront/CheckoutController';
 import InputError from '@/components/input-error';
 import { OrderTotals } from '@/components/order-summary';
@@ -89,8 +89,6 @@ export default function Checkout({
 
     return (
         <>
-            <Head title="Checkout" />
-
             <section className="mx-auto max-w-6xl px-6 py-14 lg:px-8 lg:py-20">
                 <h1 className="font-serif text-4xl font-medium text-deep-ocean">
                     Checkout

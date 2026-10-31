@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form } from '@inertiajs/react';
 import { Ban, CircleDollarSign, Truck } from 'lucide-react';
 import OrderCancellationController from '@/actions/App/Http/Controllers/Admin/OrderCancellationController';
 import OrderPaymentController from '@/actions/App/Http/Controllers/Admin/OrderPaymentController';
@@ -29,8 +29,6 @@ export default function OrderShow({ order }: Props) {
 
     return (
         <>
-            <Head title={`Order ${order.number}`} />
-
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-center gap-3">

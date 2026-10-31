@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
@@ -24,8 +24,6 @@ export default function AccountProfile({
 
     return (
         <>
-            <Head title="Profile" />
-
             <div className="space-y-6">
                 <AccountPanel
                     title="Your details"

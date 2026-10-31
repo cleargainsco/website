@@ -26,6 +26,8 @@ final class ProductData extends Data
         #[DataCollectionOf(PriceTierData::class)]
         public array $prices,
         public ?string $description = null,
+        public ?string $metaTitle = null,
+        public ?string $metaDescription = null,
         public array $details = [],
         public bool $isActive = false,
         public bool $isFeatured = false,
@@ -44,6 +46,8 @@ final class ProductData extends Data
             'slug' => $this->slug,
             'summary' => $this->summary,
             'description' => $this->description,
+            'meta_title' => $this->metaTitle,
+            'meta_description' => $this->metaDescription,
             'details' => $this->details,
             'stock' => $this->stock,
             'is_active' => $this->isActive,

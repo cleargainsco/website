@@ -29,6 +29,8 @@ trait ProductValidationRules
             'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique(Product::class)->ignore($product)],
             'summary' => ['required', 'string', 'max:500'],
             'description' => ['nullable', 'string', 'max:10000'],
+            'meta_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:160'],
             'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
             'is_active' => ['boolean'],
             'is_featured' => ['boolean'],

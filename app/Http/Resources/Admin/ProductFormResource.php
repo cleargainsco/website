@@ -28,6 +28,8 @@ final class ProductFormResource extends JsonResource
             'slug' => $this->slug,
             'summary' => $this->summary,
             'description' => $this->description,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
             'details' => (object) $this->details,
             'image_url' => $this->imageUrl(),
             'stock' => $this->stock,

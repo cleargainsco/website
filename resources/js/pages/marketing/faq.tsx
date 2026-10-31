@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Mail, Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { PageHero } from '@/components/marketing/page-hero';
@@ -12,13 +12,6 @@ export default function Faq() {
 
     return (
         <>
-            <Head title="FAQ & Contact">
-                <meta
-                    name="description"
-                    content="Answers about ordering, shipping, storage and documentation, and how to reach Clear Gains support."
-                />
-            </Head>
-
             <PageHero eyebrow="FAQ & Contact" title="Questions, answered">
                 Ordering, shipping, storage and documentation. If you don't see
                 your question here, email us.

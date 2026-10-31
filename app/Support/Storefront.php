@@ -17,7 +17,7 @@ use Shop\Models\ProductPrice;
  * @phpstan-type Money array{minor: int, currency: string}
  * @phpstan-type PriceTier array{quantity: int, unit: Money, total: Money}
  * @phpstan-type Batch array{number: string, tested_at: string, purity: string|null, lab: string|null, report_url: string|null}
- * @phpstan-type Product array{id: string, slug: string, name: string, amount: string, summary: string, image_url: string|null, stock: StockStatus, storage: string, featured: bool, price: Money, tiers: list<PriceTier>, batches: list<Batch>}
+ * @phpstan-type Product array{id: string, slug: string, name: string, amount: string, summary: string, meta_title: string|null, meta_description: string|null, image_url: string|null, stock: StockStatus, storage: string, featured: bool, price: Money, tiers: list<PriceTier>, batches: list<Batch>}
  */
 final class Storefront
 {
@@ -103,6 +103,8 @@ final class Storefront
             'name' => $product->name,
             'amount' => $product->details['amount'] ?? '',
             'summary' => $product->summary,
+            'meta_title' => $product->meta_title,
+            'meta_description' => $product->meta_description,
             'image_url' => $product->imageUrl(),
             'stock' => $product->stockStatus(),
             'storage' => $product->details['storage'] ?? config()->string('storefront.storage'),

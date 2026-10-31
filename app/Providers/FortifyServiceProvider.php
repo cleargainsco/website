@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Laravel\Head\Facades\Head;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -48,32 +49,60 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(function (Request $request) {
+            Head::title('Log in')->robots('noindex, nofollow');
 
-        Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
-            'email' => $request->email,
-            'token' => $request->route('token'),
-            'passwordRules' => Password::defaults()->toPasswordRulesString(),
-        ]));
+            return Inertia::render('auth/login', [
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'status' => $request->session()->get('status'),
+            ]);
+        });
 
-        Fortify::requestPasswordResetLinkView(fn (Request $request) => Inertia::render('auth/forgot-password', [
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::resetPasswordView(function (Request $request) {
+            Head::title('Reset password')->robots('noindex, nofollow');
 
-        Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
-            'status' => $request->session()->get('status'),
-        ]));
+            return Inertia::render('auth/reset-password', [
+                'email' => $request->email,
+                'token' => $request->route('token'),
+                'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            ]);
+        });
 
-        Fortify::registerView(fn () => Inertia::render('auth/register', [
-            'passwordRules' => Password::defaults()->toPasswordRulesString(),
-        ]));
+        Fortify::requestPasswordResetLinkView(function (Request $request) {
+            Head::title('Forgot password')->robots('noindex, nofollow');
 
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
+            return Inertia::render('auth/forgot-password', [
+                'status' => $request->session()->get('status'),
+            ]);
+        });
 
-        Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
+        Fortify::verifyEmailView(function (Request $request) {
+            Head::title('Email verification')->robots('noindex, nofollow');
+
+            return Inertia::render('auth/verify-email', [
+                'status' => $request->session()->get('status'),
+            ]);
+        });
+
+        Fortify::registerView(function () {
+            Head::title('Create an account')->robots('noindex, nofollow');
+
+            return Inertia::render('auth/register', [
+                'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            ]);
+        });
+
+        Fortify::twoFactorChallengeView(function () {
+            Head::title('Two-factor authentication')->robots('noindex, nofollow');
+
+            return Inertia::render('auth/two-factor-challenge');
+        });
+
+        Fortify::confirmPasswordView(function () {
+            Head::title('Confirm password')->robots('noindex, nofollow');
+
+            return Inertia::render('auth/confirm-password');
+        });
     }
 
     /**

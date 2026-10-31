@@ -6,11 +6,17 @@ import { cn } from '@/lib/utils';
 
 const acceptedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
-export function ProductImageField({
+export function ImageField({
+    name,
+    removeName,
     currentUrl,
+    help,
     error,
 }: {
+    name: string;
+    removeName: string;
     currentUrl: string | null;
+    help: string;
     error?: string;
 }) {
     const input = useRef<HTMLInputElement>(null);
@@ -56,9 +62,9 @@ export function ProductImageField({
         <div className="space-y-3">
             <input
                 ref={input}
-                id="image"
+                id={name}
                 type="file"
-                name="image"
+                name={name}
                 accept={acceptedTypes.join(',')}
                 className="sr-only"
                 tabIndex={-1}
@@ -109,8 +115,7 @@ export function ProductImageField({
                             Drop an image here, or click to browse
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            JPG, PNG or WebP, up to 10 MB. Large photos are
-                            resized and converted to WebP when you save.
+                            {help}
                         </span>
                     </span>
                 )}
@@ -128,7 +133,7 @@ export function ProductImageField({
                 </Button>
             )}
 
-            {removed && <input type="hidden" name="remove_image" value="1" />}
+            {removed && <input type="hidden" name={removeName} value="1" />}
             <InputError
                 message={rejected ? 'Choose a JPG, PNG or WebP image.' : error}
             />

@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import {
     Archive,
     ArchiveRestore,
@@ -62,8 +62,6 @@ export default function ProductsIndex(props: Props) {
 
     return (
         <>
-            <Head title="Products" />
-
             <div className="space-y-6 p-4 md:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <Heading

@@ -43,6 +43,8 @@ export type ProductFormData = {
     slug: string;
     summary: string;
     description: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
     details: Record<string, string | null>;
     image_url: string | null;
     stock: number;

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\AdminOrderResource;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Head\Facades\Head;
 use Shop\Models\Order;
 
 final class OrderController extends Controller
@@ -26,6 +27,8 @@ final class OrderController extends Controller
     public function show(Order $order): Response
     {
         $this->authorize('view', $order);
+
+        Head::title("Order {$order->number}");
 
         return Inertia::render('admin/orders/show', [
             'order' => $order->load(['lines', 'customer'])->toResource(AdminOrderResource::class),

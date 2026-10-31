@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { CircleCheck } from 'lucide-react';
 import { AccountPanel } from '@/components/account/account-panel';
 import { OrderStatusBadge } from '@/components/order-status-badge';
@@ -30,8 +30,6 @@ export default function AccountOrder({
 
     return (
         <>
-            <Head title={`Order ${order.number}`} />
-
             <div className="space-y-6">
                 {justPlaced && (
                     <div className="flex gap-4 rounded-3xl bg-deep-ocean p-6 text-linen">

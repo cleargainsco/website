@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { Minus, Package, Plus, ShoppingBag, X } from 'lucide-react';
 import CartItemController from '@/actions/App/Http/Controllers/Storefront/CartItemController';
 import { OrderTotals } from '@/components/order-summary';
@@ -25,8 +25,6 @@ export default function Cart({
 
     return (
         <>
-            <Head title="Your cart" />
-
             <section className="mx-auto max-w-6xl px-6 py-14 lg:px-8 lg:py-20">
                 <h1 className="font-serif text-4xl font-medium text-deep-ocean">
                     Your cart

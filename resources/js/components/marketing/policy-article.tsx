@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { PageHero } from '@/components/marketing/page-hero';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -19,10 +19,6 @@ export function PolicyArticle({
 
     return (
         <>
-            <Head title={title}>
-                <meta name="description" content={summary} />
-            </Head>
-
             <PageHero eyebrow="Policies" title={title}>
                 {summary}
             </PageHero>

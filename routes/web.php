@@ -3,8 +3,8 @@
 use App\Enums\Permission;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])->withHead(robots: 'noindex, nofollow')->group(function () {
+    Route::inertia('dashboard', 'dashboard')->name('dashboard')->withHead(title: 'Dashboard');
 });
 
 require __DIR__.'/storefront.php';

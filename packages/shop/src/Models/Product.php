@@ -30,6 +30,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string $slug
  * @property string $summary
  * @property string|null $description
+ * @property string|null $meta_title
+ * @property string|null $meta_description
  * @property array<string, string|null> $details
  * @property int $stock
  * @property bool $is_active

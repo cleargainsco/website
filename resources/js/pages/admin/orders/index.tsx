@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ReceiptText } from 'lucide-react';
 import Heading from '@/components/heading';
 import { OrderStatusBadge } from '@/components/order-status-badge';
@@ -10,8 +10,6 @@ import type { AdminOrder } from '@/types/shop';
 export default function OrdersIndex({ orders }: { orders: AdminOrder[] }) {
     return (
         <>
-            <Head title="Orders" />
-
             <div className="space-y-6 p-4 md:p-6">
                 <Heading
                     title="Orders"

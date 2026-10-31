@@ -8,6 +8,7 @@ export enum Permission {
     AdminAccess = 'admin.access',
     ProductsManage = 'products.manage',
     OrdersManage = 'orders.manage',
+    SeoManage = 'seo.manage',
 }
 
 export enum FieldKind {

@@ -77,6 +77,20 @@ describe('show', function () {
                 ->where('related.0.slug', 'beta-5mg'));
     });
 
+    it('describes the product to search engines, preferring its own search title', function () {
+        $this->get(route('shop.show', 'alpha-10mg'))
+            ->assertSee('<title data-inertia="title">Alpha 10 mg | Clear Gains</title>', false)
+            ->assertSee('"@type":"Product","name":"Alpha 10 mg"', false)
+            ->assertSee('"price":"50.00","priceCurrency":"USD","availability":"https://schema.org/InStock"', false);
+
+        Product::query()->where('slug', 'beta-5mg')->update(['meta_title' => 'Beta for research', 'meta_description' => 'Beta, tested.']);
+
+        $this->get(route('shop.show', 'beta-5mg'))
+            ->assertSee('<title data-inertia="title">Beta for research | Clear Gains</title>', false)
+            ->assertSee('content="Beta, tested."', false)
+            ->assertSee('"availability":"https://schema.org/OutOfStock"', false);
+    });
+
     it('includes the product photo when there is one', function () {
         $product = Product::query()->where('slug', 'alpha-10mg')->sole();
         $product->addMedia(UploadedFile::fake()->image('alpha.webp'))->toMediaCollection(Product::IMAGE_COLLECTION);

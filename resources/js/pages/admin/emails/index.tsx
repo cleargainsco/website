@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
@@ -23,8 +22,6 @@ export default function EmailsIndex({ emails }: { emails: EmailPreview[] }) {
 
     return (
         <>
-            <Head title="Emails" />
-
             <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
                 <Heading
                     title="Emails"

@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Mail } from 'lucide-react';
 import { AccountPanel } from '@/components/account/account-panel';
 import { NoOrders } from '@/components/account/no-orders';
@@ -17,8 +17,6 @@ export default function AccountOverview({
 
     return (
         <>
-            <Head title="My account" />
-
             <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
                 <AccountPanel
                     title="Recent orders"

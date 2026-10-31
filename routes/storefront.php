@@ -17,7 +17,7 @@ Route::get('shop/{product}', [ProductController::class, 'show'])->name('shop.sho
 
 Route::get('testing', [CertificateController::class, 'index'])->name('testing');
 
-Route::get('cart', [CartController::class, 'show'])->name('cart.show');
+Route::get('cart', [CartController::class, 'show'])->name('cart.show')->withHead(title: 'Your cart', robots: 'noindex, follow');
 
 Route::middleware('throttle:60,1')->group(function (): void {
     Route::post('cart/items', [CartItemController::class, 'store'])->name('cart.items.store');
@@ -26,7 +26,7 @@ Route::middleware('throttle:60,1')->group(function (): void {
 });
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout.create')->withHead(title: 'Checkout', robots: 'noindex, nofollow');
     Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
 });
 

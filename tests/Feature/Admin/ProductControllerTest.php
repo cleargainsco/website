@@ -156,6 +156,20 @@ describe('update', function () {
             ->and($product->prices->pluck('min_quantity')->all())->toBe([1, 3]);
     });
 
+    test('an admin sets the search title and description', function () {
+        $product = researchPeptide()->priced()->create(['slug' => 'alpha-10mg']);
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->put(route('admin.products.update', $product), productPayload(['meta_title' => 'Buy Alpha 10 mg', 'meta_description' => 'Alpha, tested.']));
+
+        expect($product->refresh())
+            ->meta_title->toBe('Buy Alpha 10 mg')
+            ->meta_description->toBe('Alpha, tested.');
+
+        $this->put(route('admin.products.update', $product), productPayload(['meta_title' => str_repeat('a', 71)]))
+            ->assertInvalid('meta_title');
+    });
+
     test('products are addressed by their public id, not the database id', function () {
         $product = researchPeptide()->priced()->create();
 

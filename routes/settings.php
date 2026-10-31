@@ -18,15 +18,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 });
 
-Route::middleware(['auth', 'can:'.Permission::AdminAccess->value])->group(function () {
+Route::middleware(['auth', 'can:'.Permission::AdminAccess->value])->withHead(robots: 'noindex, nofollow')->group(function () {
     Route::redirect('settings', '/settings/profile');
 
-    Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit')->withHead(title: 'Profile settings');
 
     Route::middleware('verified')->group(function () {
         Route::get('settings/security', [SecurityController::class, 'edit'])
             ->middleware(RequirePassword::class)
-            ->name('security.edit');
+            ->name('security.edit')
+            ->withHead(title: 'Security settings');
     });
 });
 
