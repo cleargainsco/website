@@ -1,5 +1,7 @@
 import { Form, Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import CheckoutController from '@/actions/App/Http/Controllers/Storefront/CheckoutController';
+import CheckoutDiscountController from '@/actions/App/Http/Controllers/Storefront/CheckoutDiscountController';
 import InputError from '@/components/input-error';
 import { OrderTotals } from '@/components/order-summary';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,7 +12,7 @@ import { formatMoney } from '@/lib/money';
 import { show as cartShow } from '@/routes/cart';
 import { terms } from '@/routes/policies';
 import type { Money } from '@/types/money';
-import type { CartLine } from '@/types/shop';
+import type { AppliedDiscount, CartLine } from '@/types/shop';
 
 type AddressFields = {
     shipping_name: string;
@@ -74,18 +76,87 @@ const fields: {
     },
 ];
 
+const CHECKOUT_FORM = 'checkout-form';
+
+type Discount = AppliedDiscount & { percent_off: number };
+
+function DiscountCodeField({ discount }: { discount: Discount | null }) {
+    if (discount) {
+        return (
+            <div className="flex items-center justify-between gap-4 rounded-2xl bg-sand/40 px-4 py-3 text-sm">
+                <span>
+                    <span className="font-medium">{discount.code}</span> ·{' '}
+                    {discount.percent_off}% off
+                </span>
+                <Form
+                    {...CheckoutDiscountController.destroy.form()}
+                    options={{ preserveScroll: true }}
+                >
+                    {({ processing }) => (
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="font-medium text-ocean hover:text-deep-ocean"
+                        >
+                            Remove
+                        </button>
+                    )}
+                </Form>
+            </div>
+        );
+    }
+
+    return (
+        <Form
+            {...CheckoutDiscountController.store.form()}
+            options={{ preserveScroll: true }}
+            resetOnSuccess
+            noValidate
+            className="space-y-2"
+        >
+            {({ processing, errors }) => (
+                <>
+                    <Label htmlFor="code">Discount code</Label>
+                    <div className="flex gap-2">
+                        <Input
+                            id="code"
+                            name="code"
+                            autoComplete="off"
+                            className="uppercase placeholder:normal-case"
+                            placeholder="Enter code"
+                        />
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className={brandButton({ variant: 'secondary' })}
+                        >
+                            Apply
+                        </button>
+                    </div>
+                    <InputError message={errors.code} />
+                </>
+            )}
+        </Form>
+    );
+}
+
 export default function Checkout({
     lines,
     subtotal,
+    discount,
     shipping,
+    total,
     address,
 }: {
     lines: CartLine[];
     subtotal: Money;
+    discount: Discount | null;
     shipping: Money | null;
+    total: Money | null;
     address: AddressFields;
 }) {
     const { auth } = usePage().props;
+    const [placing, setPlacing] = useState(false);
 
     return (
         <>
@@ -94,14 +165,23 @@ export default function Checkout({
                     Checkout
                 </h1>
 
-                <Form
-                    {...CheckoutController.store.form()}
-                    noValidate
-                    className="mt-10 grid gap-8 lg:grid-cols-[1fr_24rem]"
-                >
-                    {({ processing, errors }) => (
-                        <>
+                <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_24rem]">
+                    <Form
+                        {...CheckoutController.store.form()}
+                        id={CHECKOUT_FORM}
+                        onStart={() => setPlacing(true)}
+                        onFinish={() => setPlacing(false)}
+                        noValidate
+                    >
+                        {({ errors }) => (
                             <div className="space-y-6">
+                                {errors.code && (
+                                    <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800">
+                                        {errors.code} It has been removed, so
+                                        check your total before placing the
+                                        order.
+                                    </p>
+                                )}
                                 {errors.cart && (
                                     <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800">
                                         {errors.cart}{' '}
@@ -211,53 +291,55 @@ export default function Checkout({
                                     />
                                 </section>
                             </div>
+                        )}
+                    </Form>
 
-                            <aside className="h-fit space-y-5 rounded-3xl bg-white p-6 ring-1 ring-charcoal/5">
-                                <h2 className="font-serif text-2xl text-deep-ocean">
-                                    Your order
-                                </h2>
-                                <ul className="space-y-3 text-sm">
-                                    {lines.map((line) => (
-                                        <li
-                                            key={line.product_id}
-                                            className="flex justify-between gap-4"
-                                        >
-                                            <span>
-                                                {line.quantity} × {line.name}
-                                                {line.amount &&
-                                                    ` ${line.amount}`}
-                                            </span>
-                                            <span className="tabular-nums">
-                                                {formatMoney(line.total)}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <div className="border-t border-charcoal/10 pt-4">
-                                    <OrderTotals
-                                        subtotal={subtotal}
-                                        shipping={shipping}
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className={brandButton({
-                                        className: 'w-full',
-                                    })}
+                    <aside className="h-fit space-y-5 rounded-3xl bg-white p-6 ring-1 ring-charcoal/5">
+                        <h2 className="font-serif text-2xl text-deep-ocean">
+                            Your order
+                        </h2>
+                        <ul className="space-y-3 text-sm">
+                            {lines.map((line) => (
+                                <li
+                                    key={line.product_id}
+                                    className="flex justify-between gap-4"
                                 >
-                                    Place order
-                                </button>
-                                <p className="text-xs text-charcoal/60">
-                                    No payment is taken now. We'll reserve your
-                                    items and email you an invoice with payment
-                                    instructions. Your order ships once payment
-                                    is received.
-                                </p>
-                            </aside>
-                        </>
-                    )}
-                </Form>
+                                    <span>
+                                        {line.quantity} × {line.name}
+                                        {line.amount && ` ${line.amount}`}
+                                    </span>
+                                    <span className="tabular-nums">
+                                        {formatMoney(line.total)}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                        <DiscountCodeField discount={discount} />
+                        <div className="border-t border-charcoal/10 pt-4">
+                            <OrderTotals
+                                subtotal={subtotal}
+                                discount={discount}
+                                shipping={shipping}
+                                total={total}
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            form={CHECKOUT_FORM}
+                            disabled={placing}
+                            className={brandButton({
+                                className: 'w-full',
+                            })}
+                        >
+                            Place order
+                        </button>
+                        <p className="text-xs text-charcoal/60">
+                            No payment is taken now. We'll reserve your items
+                            and email you an invoice with payment instructions.
+                            Your order ships once payment is received.
+                        </p>
+                    </aside>
+                </div>
             </section>
         </>
     );

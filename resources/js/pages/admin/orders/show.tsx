@@ -67,6 +67,7 @@ export default function OrderShow({ order }: Props) {
                             <div className="mt-2 border-t pt-4">
                                 <OrderTotals
                                     subtotal={order.subtotal}
+                                    discount={order.discount}
                                     shipping={order.shipping}
                                     total={order.total}
                                 />

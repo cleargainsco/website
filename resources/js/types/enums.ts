@@ -9,6 +9,7 @@ export enum Permission {
     ProductsManage = 'products.manage',
     OrdersManage = 'orders.manage',
     SeoManage = 'seo.manage',
+    MarketingManage = 'marketing.manage',
 }
 
 export enum FieldKind {
@@ -21,4 +22,9 @@ export enum OrderStatus {
     Paid = 'paid',
     Shipped = 'shipped',
     Cancelled = 'cancelled',
+}
+
+export enum SubscriberSource {
+    WelcomeOffer = 'welcome_offer',
+    Registration = 'registration',
 }

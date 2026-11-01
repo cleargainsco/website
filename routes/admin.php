@@ -13,6 +13,9 @@ use App\Http\Controllers\Admin\ProductBatchController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductRestorationController;
 use App\Http\Controllers\Admin\SeoPageController;
+use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\WelcomeOfferController;
+use App\Http\Controllers\Admin\WelcomeOfferStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])
@@ -25,6 +28,12 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])
 
         Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index')->withHead(title: 'SEO');
         Route::put('seo/{page}', [SeoPageController::class, 'update'])->name('seo.update');
+
+        Route::get('welcome-offer', [WelcomeOfferController::class, 'edit'])->name('welcome-offer.edit')->withHead(title: 'Welcome offer');
+        Route::put('welcome-offer', [WelcomeOfferController::class, 'update'])->name('welcome-offer.update');
+        Route::put('welcome-offer/status', [WelcomeOfferStatusController::class, 'update'])->name('welcome-offer.status.update');
+
+        Route::get('subscribers', [SubscriberController::class, 'index'])->name('subscribers.index')->withHead(title: 'Subscribers');
 
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->withHead(title: 'Orders');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');

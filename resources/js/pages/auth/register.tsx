@@ -3,6 +3,7 @@ import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -89,10 +90,23 @@ export default function Register({ passwordRules }: Props) {
                                 />
                             </div>
 
+                            <label className="flex items-start gap-3 text-sm">
+                                <Checkbox
+                                    name="marketing_opt_in"
+                                    value="1"
+                                    tabIndex={5}
+                                    className="mt-0.5"
+                                />
+                                <span className="text-muted-foreground">
+                                    Email me offers, restocks and new arrivals.
+                                    Unsubscribe anytime.
+                                </span>
+                            </label>
+
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
+                                tabIndex={6}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
@@ -102,7 +116,7 @@ export default function Register({ passwordRules }: Props) {
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={7}>
                                 Log in
                             </TextLink>
                         </div>

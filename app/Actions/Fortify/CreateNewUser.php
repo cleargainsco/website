@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Actions\Marketing\SubscribeRegisteredUserAction;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Enums\RoleName;
@@ -13,6 +14,8 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 
+    public function __construct(private readonly SubscribeRegisteredUserAction $subscribe) {}
+
     /**
      * Validate and create a newly registered user.
      *
@@ -23,6 +26,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
+            'marketing_opt_in' => ['nullable', 'boolean'],
         ])->validate();
 
         $user = User::query()->create([
@@ -32,6 +36,8 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         $user->assignRole(RoleName::Customer);
+
+        $this->subscribe->handle($user, filter_var($input['marketing_opt_in'] ?? false, FILTER_VALIDATE_BOOLEAN));
 
         return $user;
     }

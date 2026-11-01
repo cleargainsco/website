@@ -33,6 +33,11 @@ export type Address = {
     country: string;
 };
 
+export type AppliedDiscount = {
+    code: string;
+    amount: Money;
+};
+
 export type Order = {
     id: string;
     number: string;
@@ -43,6 +48,7 @@ export type Order = {
     shipped_at: string | null;
     cancelled_at: string | null;
     subtotal: Money;
+    discount: AppliedDiscount | null;
     shipping: Money | null;
     tax: Money | null;
     total: Money;

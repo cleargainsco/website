@@ -82,6 +82,7 @@ export default function AccountOrder({
                     <div className="mt-4 border-t border-charcoal/10 pt-4">
                         <OrderTotals
                             subtotal={order.subtotal}
+                            discount={order.discount}
                             shipping={order.shipping}
                             total={order.total}
                         />

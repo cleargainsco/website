@@ -26,3 +26,15 @@ test('every order email renders from a freshly loaded order', function (string $
     'shipped' => [OrderShippedNotification::class, 'USPS 9400 1000'],
     'cancelled' => [OrderCancelledNotification::class, 'has been cancelled'],
 ]);
+
+test('an order placed with a code shows the discount and the total before shipping', function () {
+    $placed = Order::factory()
+        ->forProduct(researchPeptide()->create(), quantity: 2, unitPriceMinor: 5000)
+        ->create(['subtotal_minor' => 10000, 'discount_code' => 'WELCOME-ABC123', 'discount_minor' => 1000, 'total_minor' => 9000]);
+    $order = Order::query()->findOrFail($placed->id);
+
+    $html = (string) (new OrderPlacedNotification($order))->toMail($order->customer)->render();
+
+    expect($html)->toContain('Discount (WELCOME-ABC123):</strong> −$10.00')
+        ->toContain('Total before shipping:</strong> $90.00');
+});

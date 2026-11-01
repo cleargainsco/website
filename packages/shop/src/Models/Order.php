@@ -26,6 +26,8 @@ use Shop\Enums\OrderStatus;
  * @property string $email
  * @property string $currency
  * @property Money $subtotal_minor
+ * @property string|null $discount_code
+ * @property Money|null $discount_minor
  * @property Money|null $shipping_minor
  * @property Money|null $tax_minor
  * @property Money $total_minor
@@ -128,6 +130,7 @@ final class Order extends Model
             'user_id' => 'integer',
             'status' => OrderStatus::class,
             'subtotal_minor' => MoneyCast::class.':currency',
+            'discount_minor' => MoneyCast::class.':currency',
             'shipping_minor' => MoneyCast::class.':currency',
             'tax_minor' => MoneyCast::class.':currency',
             'total_minor' => MoneyCast::class.':currency',

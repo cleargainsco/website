@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoleName;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -52,6 +53,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @return array<string, string>
      */
+    /**
+     * Admins pass every permission check (Gate::before), so a permission added later
+     * needs no re-seed before they can use it.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(RoleName::Admin);
+    }
+
     protected function casts(): array
     {
         return [

@@ -32,6 +32,10 @@ final class OrderResource extends JsonResource
             'shipped_at' => $this->shipped_at?->toIso8601String(),
             'cancelled_at' => $this->cancelled_at?->toIso8601String(),
             'subtotal' => new MoneyResource($this->subtotal_minor),
+            'discount' => $this->discount_minor === null ? null : [
+                'code' => $this->discount_code,
+                'amount' => new MoneyResource($this->discount_minor),
+            ],
             'shipping' => $this->shipping_minor === null ? null : new MoneyResource($this->shipping_minor),
             'tax' => $this->tax_minor === null ? null : new MoneyResource($this->tax_minor),
             'total' => new MoneyResource($this->total_minor),
