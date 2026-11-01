@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\EmailPreview;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('admins see every email the shop sends', function () {
@@ -16,7 +17,7 @@ test('admins see every email the shop sends', function () {
 });
 
 test('each email shows who it is from and who receives it', function () {
-    config(['mail.from' => ['address' => 'orders@cleargains.test', 'name' => 'Clear Gains'], 'storefront.order_notifications_email' => 'team@cleargains.test']);
+    config(['mail.reply_to.address' => null, 'mail.from' => ['address' => 'orders@cleargains.test', 'name' => 'Clear Gains'], 'storefront.order_notifications_email' => 'team@cleargains.test']);
 
     $this->actingAs(User::factory()->admin()->create(['email' => 'ada@example.com']))
         ->get(route('admin.emails.index'))
@@ -25,6 +26,25 @@ test('each email shows who it is from and who receives it', function () {
             ->where('emails.0.to', ['ada@example.com'])
             ->where('emails.1.to', ['team@cleargains.test'])
             ->where('emails.0.reply_to', []));
+});
+
+test('each email shows the global reply-to address', function () {
+    config(['mail.reply_to' => ['address' => 'hello@cleargains.test', 'name' => 'Clear Gains']]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.emails.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('emails.0.reply_to', ['Clear Gains <hello@cleargains.test>']));
+});
+
+test('sent emails carry the global reply-to address', function () {
+    config(['mail.default' => 'array', 'mail.reply_to' => ['address' => 'hello@cleargains.test', 'name' => 'Clear Gains']]);
+
+    Mail::raw('Hello', fn ($message) => $message->to('ada@example.com'));
+
+    $sent = Mail::mailer('array')->getSymfonyTransport()->messages()->first()->getOriginalMessage();
+
+    expect($sent->getReplyTo()[0]->getAddress())->toBe('hello@cleargains.test');
 });
 
 test('each email renders with the sample order', function (EmailPreview $email) {

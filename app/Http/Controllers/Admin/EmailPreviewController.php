@@ -23,8 +23,12 @@ final class EmailPreviewController extends Controller
 
         $order = SampleOrder::forCustomer($user);
 
+        $globalReplyTo = config('mail.reply_to.address') === null
+            ? []
+            : [self::address([config()->string('mail.reply_to.address'), config()->string('mail.reply_to.name')])];
+
         return Inertia::render('admin/emails/index', [
-            'emails' => array_map(function (EmailPreview $email) use ($user, $order): array {
+            'emails' => array_map(function (EmailPreview $email) use ($user, $order, $globalReplyTo): array {
                 $message = $email->message($user, $order);
 
                 $isMailMessage = $message instanceof MailMessage;
@@ -38,7 +42,7 @@ final class EmailPreviewController extends Controller
                     'to' => [$email->recipient($user)],
                     'cc' => $isMailMessage ? array_map(self::address(...), $message->cc) : [],
                     'bcc' => $isMailMessage ? array_map(self::address(...), $message->bcc) : [],
-                    'reply_to' => $isMailMessage ? array_map(self::address(...), $message->replyTo) : [],
+                    'reply_to' => $isMailMessage && $message->replyTo !== [] ? array_map(self::address(...), $message->replyTo) : $globalReplyTo,
                 ];
             }, EmailPreview::cases()),
         ]);
