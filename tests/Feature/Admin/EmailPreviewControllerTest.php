@@ -17,34 +17,34 @@ test('admins see every email the shop sends', function () {
 });
 
 test('each email shows who it is from and who receives it', function () {
-    config(['mail.reply_to.address' => null, 'mail.from' => ['address' => 'orders@cleargains.test', 'name' => 'Clear Gains'], 'storefront.order_notifications_email' => 'team@cleargains.test']);
+    config(['mail.reply_to.address' => null, 'mail.from' => ['address' => 'orders@cleargainsco.test', 'name' => 'Clear Gains'], 'storefront.order_notifications_email' => 'team@cleargainsco.test']);
 
     $this->actingAs(User::factory()->admin()->create(['email' => 'ada@example.com']))
         ->get(route('admin.emails.index'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('emails.0.from', 'Clear Gains <orders@cleargains.test>')
+            ->where('emails.0.from', 'Clear Gains <orders@cleargainsco.test>')
             ->where('emails.0.to', ['ada@example.com'])
-            ->where('emails.1.to', ['team@cleargains.test'])
+            ->where('emails.1.to', ['team@cleargainsco.test'])
             ->where('emails.0.reply_to', []));
 });
 
 test('each email shows the global reply-to address', function () {
-    config(['mail.reply_to' => ['address' => 'hello@cleargains.test', 'name' => 'Clear Gains']]);
+    config(['mail.reply_to' => ['address' => 'hello@cleargainsco.test', 'name' => 'Clear Gains']]);
 
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.emails.index'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('emails.0.reply_to', ['Clear Gains <hello@cleargains.test>']));
+            ->where('emails.0.reply_to', ['Clear Gains <hello@cleargainsco.test>']));
 });
 
 test('sent emails carry the global reply-to address', function () {
-    config(['mail.default' => 'array', 'mail.reply_to' => ['address' => 'hello@cleargains.test', 'name' => 'Clear Gains']]);
+    config(['mail.default' => 'array', 'mail.reply_to' => ['address' => 'hello@cleargainsco.test', 'name' => 'Clear Gains']]);
 
     Mail::raw('Hello', fn ($message) => $message->to('ada@example.com'));
 
     $sent = Mail::mailer('array')->getSymfonyTransport()->messages()->first()->getOriginalMessage();
 
-    expect($sent->getReplyTo()[0]->getAddress())->toBe('hello@cleargains.test');
+    expect($sent->getReplyTo()[0]->getAddress())->toBe('hello@cleargainsco.test');
 });
 
 test('each email renders with the sample order', function (EmailPreview $email) {
@@ -53,6 +53,12 @@ test('each email renders with the sample order', function (EmailPreview $email) 
         ->assertOk()
         ->assertSee('images/email/clear-gains-logo.png', false);
 })->with(EmailPreview::cases());
+
+test('the preview can be framed by the admin page on the same site', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.emails.show', EmailPreview::OrderPlaced))
+        ->assertHeader('Content-Security-Policy', "frame-ancestors 'self'");
+});
 
 test('the order summary lists the sample lines', function () {
     $this->actingAs(User::factory()->admin()->create())
