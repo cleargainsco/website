@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Enums\SeoPage;
 use App\Listeners\SendOrderEmails;
 use App\Models\ProductBatch;
+use App\Models\User;
 use App\Policies\OrderPolicy;
 use App\Policies\ProductPolicy;
 use Carbon\CarbonImmutable;
@@ -42,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
+        Gate::before(fn (User $user): ?bool => $user->isAdmin() ? true : null);
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
 

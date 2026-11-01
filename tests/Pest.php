@@ -65,3 +65,20 @@ function fakePdf(string $name = 'coa.pdf'): UploadedFile
 {
     return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF\n");
 }
+
+/**
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function shippingAddress(array $overrides = []): array
+{
+    return array_replace([
+        'shipping_name' => 'Ada Lab',
+        'shipping_line1' => '1 Bench St',
+        'shipping_city' => 'Austin',
+        'shipping_region' => 'TX',
+        'shipping_postal_code' => '78701',
+        'shipping_country' => 'United States',
+        'research_use' => '1',
+    ], $overrides);
+}

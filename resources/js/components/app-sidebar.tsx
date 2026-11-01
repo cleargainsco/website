@@ -1,11 +1,13 @@
 import { Link } from '@inertiajs/react';
 import {
+    Gift,
     LayoutGrid,
     Mail,
     Package,
     ReceiptText,
     Search,
     Store,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -23,8 +25,10 @@ import {
 import { dashboard, home } from '@/routes';
 import { index as emailsIndex } from '@/routes/admin/emails';
 import { index as ordersIndex } from '@/routes/admin/orders';
-import { index as seoIndex } from '@/routes/admin/seo';
 import { index as productsIndex } from '@/routes/admin/products';
+import { index as seoIndex } from '@/routes/admin/seo';
+import { index as subscribersIndex } from '@/routes/admin/subscribers';
+import { edit as welcomeOfferEdit } from '@/routes/admin/welcome-offer';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -42,6 +46,16 @@ const mainNavItems: NavItem[] = [
         title: 'Products',
         href: productsIndex(),
         icon: Package,
+    },
+    {
+        title: 'Welcome offer',
+        href: welcomeOfferEdit(),
+        icon: Gift,
+    },
+    {
+        title: 'Subscribers',
+        href: subscribersIndex(),
+        icon: Users,
     },
     {
         title: 'Emails',

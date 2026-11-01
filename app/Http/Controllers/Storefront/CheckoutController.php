@@ -19,8 +19,10 @@ use Shop\Actions\PlaceOrderAction;
 use Shop\Cart\Cart;
 use Shop\Contracts\ShippingCalculator;
 use Shop\Data\CheckoutData;
+use Shop\Exceptions\DiscountCodeUnavailableException;
 use Shop\Exceptions\EmptyCartException;
 use Shop\Exceptions\InsufficientStockException;
+use Shop\Models\DiscountCode;
 
 final class CheckoutController extends Controller
 {
@@ -35,11 +37,20 @@ final class CheckoutController extends Controller
         $subtotal = $cart->subtotal($lines);
         $shippingQuote = $shipping->quote($lines);
         $lastOrder = $user->orders()->latest('placed_at')->first();
+        $discount = $this->applicableDiscount($cart, $user);
+        $discountAmount = $discount === null || $subtotal === null ? null : $discount->amountOff($subtotal);
+        $afterDiscount = $discountAmount === null ? $subtotal : $subtotal->minus($discountAmount);
 
         return Inertia::render('marketing/checkout', [
             'lines' => CartLineResource::collection($lines),
             'subtotal' => $subtotal === null ? null : new MoneyResource($subtotal),
+            'discount' => $discount === null || $discountAmount === null ? null : [
+                'code' => $discount->code,
+                'percent_off' => $discount->percent_off,
+                'amount' => new MoneyResource($discountAmount),
+            ],
             'shipping' => $shippingQuote === null ? null : new MoneyResource($shippingQuote),
+            'total' => $afterDiscount === null ? null : new MoneyResource($shippingQuote === null ? $afterDiscount : $afterDiscount->plus($shippingQuote)),
             'address' => [
                 'shipping_name' => $lastOrder->shipping_name ?? $user->name,
                 'shipping_phone' => $lastOrder?->shipping_phone,
@@ -64,6 +75,10 @@ final class CheckoutController extends Controller
             $order = $placeOrder->handle($user, $user->email, $data, $cart);
         } catch (EmptyCartException) {
             return to_route('cart.show');
+        } catch (DiscountCodeUnavailableException $exception) {
+            $cart->removeDiscount();
+
+            throw ValidationException::withMessages(['code' => $exception->getMessage()]);
         } catch (InsufficientStockException $exception) {
             throw ValidationException::withMessages([
                 'cart' => $exception->product->stock === 0
@@ -75,5 +90,30 @@ final class CheckoutController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Order :number placed.', ['number' => $order->number])]);
 
         return to_route('account.orders.show', ['order' => $order, 'placed' => 1]);
+    }
+
+    /**
+     * A code that has stopped applying since it was entered (expired, or spent on
+     * another order) is dropped quietly rather than shown at a price it won't get.
+     */
+    private function applicableDiscount(Cart $cart, User $user): ?DiscountCode
+    {
+        $discount = $cart->discount();
+
+        if ($discount === null) {
+            $cart->removeDiscount();
+
+            return null;
+        }
+
+        try {
+            $discount->ensureRedeemableBy($user->email);
+        } catch (DiscountCodeUnavailableException) {
+            $cart->removeDiscount();
+
+            return null;
+        }
+
+        return $discount;
     }
 }

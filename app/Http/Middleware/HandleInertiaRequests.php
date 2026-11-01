@@ -2,7 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Permission;
 use App\Http\Controllers\Storefront\AgeVerificationController;
+use App\Http\Controllers\Storefront\WelcomeOfferClaimController;
+use App\Models\WelcomeOffer;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Shop\Cart\Cart;
@@ -42,12 +45,31 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
-                'permissions' => $request->user()?->getAllPermissions()->pluck('name')->all() ?? [],
+                'permissions' => $request->user()?->isAdmin()
+                    ? Permission::values()
+                    : $request->user()?->getAllPermissions()->pluck('name')->all() ?? [],
             ],
             'supportEmail' => config('storefront.support_email'),
             'cartCount' => fn (): int => app(Cart::class)->count(),
             'ageVerified' => $request->cookie(AgeVerificationController::COOKIE) === '1',
+            'welcomeOffer' => fn (): ?array => $this->welcomeOffer($request),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * The popup copy for a guest who hasn't signed up or closed it yet; null otherwise.
+     *
+     * @return array{eyebrow: string, headline: string, body: string, button_label: string, success_headline: string, success_body: string, fine_print: string}|null
+     */
+    private function welcomeOffer(Request $request): ?array
+    {
+        if ($request->user() !== null || $request->hasCookie(WelcomeOfferClaimController::COOKIE)) {
+            return null;
+        }
+
+        $offer = WelcomeOffer::current();
+
+        return $offer->isEnabled() ? $offer->copy() : null;
     }
 }

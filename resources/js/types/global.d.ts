@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { WelcomeOfferCopy } from '@/types/marketing';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -15,6 +16,7 @@ declare module '@inertiajs/core' {
             supportEmail: string;
             cartCount: number;
             ageVerified: boolean;
+            welcomeOffer: WelcomeOfferCopy | null;
             [key: string]: unknown;
         };
     }

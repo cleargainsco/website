@@ -8,8 +8,10 @@ use Brick\Money\Money;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Collection;
 use Shop\Contracts\PriceResolver;
+use Shop\Exceptions\DiscountCodeUnavailableException;
 use Shop\Exceptions\InsufficientStockException;
 use Shop\Exceptions\ProductUnavailableException;
+use Shop\Models\DiscountCode;
 use Shop\Models\Product;
 
 /**
@@ -19,6 +21,8 @@ use Shop\Models\Product;
 final readonly class Cart
 {
     private const string SESSION_KEY = 'shop.cart';
+
+    private const string DISCOUNT_SESSION_KEY = 'shop.discount_code';
 
     public function __construct(
         private Session $session,
@@ -53,7 +57,45 @@ final readonly class Cart
 
     public function clear(): void
     {
-        $this->session->forget(self::SESSION_KEY);
+        $this->session->forget([self::SESSION_KEY, self::DISCOUNT_SESSION_KEY]);
+    }
+
+    /**
+     * Checked again, under a lock, when the order is placed.
+     *
+     * @throws DiscountCodeUnavailableException
+     */
+    public function applyDiscount(string $code, string $email): DiscountCode
+    {
+        $normalized = DiscountCode::normalize($code);
+
+        $discount = DiscountCode::query()->where('code', $normalized)->first()
+            ?? throw DiscountCodeUnavailableException::notFound($normalized);
+
+        $discount->ensureRedeemableBy($email);
+
+        $this->session->put(self::DISCOUNT_SESSION_KEY, $discount->code);
+
+        return $discount;
+    }
+
+    public function removeDiscount(): void
+    {
+        $this->session->forget(self::DISCOUNT_SESSION_KEY);
+    }
+
+    public function discountCode(): ?string
+    {
+        $code = $this->session->get(self::DISCOUNT_SESSION_KEY);
+
+        return is_string($code) ? $code : null;
+    }
+
+    public function discount(): ?DiscountCode
+    {
+        $code = $this->discountCode();
+
+        return $code === null ? null : DiscountCode::query()->where('code', $code)->first();
     }
 
     public function count(): int

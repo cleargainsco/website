@@ -22,9 +22,15 @@ trait DescribesOrder
 
         $message->line('**Subtotal:** '.$order->subtotal_minor->formatTo('en_US'));
 
+        if ($order->discount_minor !== null) {
+            $message->line("**Discount ({$order->discount_code}):** −".$order->discount_minor->formatTo('en_US'));
+        }
+
         if ($order->shipping_minor !== null) {
             $message->line('**Shipping:** '.$order->shipping_minor->formatTo('en_US'))
                 ->line('**Total:** '.$order->total_minor->formatTo('en_US'));
+        } elseif ($order->discount_minor !== null) {
+            $message->line('**Total before shipping:** '.$order->total_minor->formatTo('en_US'));
         }
 
         return $message;

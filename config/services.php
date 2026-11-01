@@ -20,6 +20,12 @@ return [
 
     'resend' => [
         'key' => env('RESEND_API_KEY'),
+        // Every opted-in subscriber goes in the general segment; those who signed up
+        // through the welcome offer also go in its own. No general segment: nothing syncs.
+        'segments' => [
+            'general' => env('RESEND_GENERAL_SEGMENT_ID'),
+            'welcome_offer' => env('RESEND_WELCOME_OFFER_SEGMENT_ID'),
+        ],
     ],
 
     'ses' => [

@@ -14,13 +14,16 @@ use Shop\Contracts\ShippingCalculator;
 use Shop\Data\CheckoutData;
 use Shop\Enums\OrderStatus;
 use Shop\Events\OrderPlaced;
+use Shop\Exceptions\DiscountCodeUnavailableException;
 use Shop\Exceptions\EmptyCartException;
 use Shop\Exceptions\InsufficientStockException;
+use Shop\Models\DiscountCode;
 use Shop\Models\Order;
 
 /**
  * Turns the cart into an order awaiting payment. Stock is taken under a row lock for
- * every line, so the order either reserves everything or nothing.
+ * every line, so the order either reserves everything or nothing. A discount code is
+ * re-checked under its own lock, so a single-use code cannot be spent twice at once.
  */
 final readonly class PlaceOrderAction
 {
@@ -32,6 +35,7 @@ final readonly class PlaceOrderAction
     /**
      * @throws EmptyCartException
      * @throws InsufficientStockException
+     * @throws DiscountCodeUnavailableException
      */
     public function handle(Model $customer, string $email, CheckoutData $data, Cart $cart): Order
     {
@@ -44,9 +48,13 @@ final readonly class PlaceOrderAction
         $currency = config()->string('shop.currency');
         $subtotal = $cart->subtotal($lines) ?? Money::zero($currency);
         $shipping = $this->shipping->quote($lines);
+        $discountCode = $cart->discountCode();
 
-        $order = DB::transaction(function () use ($customer, $email, $data, $lines, $currency, $subtotal, $shipping): Order {
+        $order = DB::transaction(function () use ($customer, $email, $data, $lines, $currency, $subtotal, $shipping, $discountCode): Order {
             $lines->each(fn (CartLine $line) => $this->decrementStock->handle($line->product, $line->quantity));
+
+            $discount = $discountCode === null ? null : $this->redeem($discountCode, $email, $subtotal);
+            $total = $discount === null ? $subtotal : $subtotal->minus($discount);
 
             $order = Order::query()->create([
                 'user_id' => $customer->getKey(),
@@ -54,8 +62,10 @@ final readonly class PlaceOrderAction
                 'email' => $email,
                 'currency' => $currency,
                 'subtotal_minor' => $subtotal,
+                'discount_code' => $discount === null ? null : $discountCode,
+                'discount_minor' => $discount,
                 'shipping_minor' => $shipping,
-                'total_minor' => $shipping === null ? $subtotal : $subtotal->plus($shipping),
+                'total_minor' => $shipping === null ? $total : $total->plus($shipping),
                 'shipping_name' => $data->shippingName,
                 'shipping_phone' => $data->shippingPhone,
                 'shipping_line1' => $data->shippingLine1,
@@ -90,5 +100,19 @@ final readonly class PlaceOrderAction
         OrderPlaced::dispatch($order);
 
         return $order;
+    }
+
+    /**
+     * @throws DiscountCodeUnavailableException
+     */
+    private function redeem(string $code, string $email, Money $subtotal): Money
+    {
+        $discount = DiscountCode::query()->where('code', $code)->lockForUpdate()->first()
+            ?? throw DiscountCodeUnavailableException::notFound($code);
+
+        $discount->ensureRedeemableBy($email);
+        $discount->increment('times_used');
+
+        return $discount->amountOff($subtotal);
     }
 }

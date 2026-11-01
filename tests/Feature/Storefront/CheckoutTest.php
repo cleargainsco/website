@@ -11,19 +11,6 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Shop\Enums\OrderStatus;
 use Shop\Models\Order;
 
-function shippingAddress(array $overrides = []): array
-{
-    return array_replace([
-        'shipping_name' => 'Ada Lab',
-        'shipping_line1' => '1 Bench St',
-        'shipping_city' => 'Austin',
-        'shipping_region' => 'TX',
-        'shipping_postal_code' => '78701',
-        'shipping_country' => 'United States',
-        'research_use' => '1',
-    ], $overrides);
-}
-
 test('checkout needs a signed-in customer with a verified email', function () {
     $this->get(route('checkout.create'))->assertRedirect(route('login'));
 
