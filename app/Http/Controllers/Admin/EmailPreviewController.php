@@ -9,11 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\SampleOrder;
 use Illuminate\Container\Attributes\CurrentUser;
-use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Routing\Router;
 use Inertia\Inertia;
 use Inertia\Response;
 use Shop\Models\Order;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 final class EmailPreviewController extends Controller
 {
@@ -48,11 +50,15 @@ final class EmailPreviewController extends Controller
         ]);
     }
 
-    public function show(#[CurrentUser] User $user, EmailPreview $email): MailMessage|Mailable
+    public function show(Request $request, #[CurrentUser] User $user, EmailPreview $email): HttpResponse
     {
         $this->authorize('viewAny', Order::class);
 
-        return $email->message($user, SampleOrder::forCustomer($user));
+        $response = Router::toResponse($request, $email->message($user, SampleOrder::forCustomer($user)));
+
+        $response->headers->set('Content-Security-Policy', "frame-ancestors 'self'");
+
+        return $response;
     }
 
     /**

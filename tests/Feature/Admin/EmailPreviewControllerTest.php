@@ -54,6 +54,12 @@ test('each email renders with the sample order', function (EmailPreview $email) 
         ->assertSee('images/email/clear-gains-logo.png', false);
 })->with(EmailPreview::cases());
 
+test('the preview can be framed by the admin page on the same site', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.emails.show', EmailPreview::OrderPlaced))
+        ->assertHeader('Content-Security-Policy', "frame-ancestors 'self'");
+});
+
 test('the order summary lists the sample lines', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.emails.show', EmailPreview::OrderPlaced))
