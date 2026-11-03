@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { AgeGate } from '@/components/marketing/age-gate';
+import { CartDrawer } from '@/components/marketing/cart-drawer';
 import { SiteFooter } from '@/components/marketing/site-footer';
 import { SiteHeader } from '@/components/marketing/site-header';
 import { WelcomeOffer } from '@/components/marketing/welcome-offer';
@@ -13,6 +14,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <SiteFooter />
+            <CartDrawer />
             <AgeGate />
             <WelcomeOffer />
         </div>

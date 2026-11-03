@@ -3,6 +3,7 @@ import { Minus, Package, Plus, ShoppingBag, X } from 'lucide-react';
 import CartItemController from '@/actions/App/Http/Controllers/Storefront/CartItemController';
 import { OrderTotals } from '@/components/order-summary';
 import { ResearchUseNotice } from '@/components/marketing/research-use-notice';
+import { PaymentMethods } from '@/components/marketing/payment-methods';
 import { brandButton } from '@/lib/brand-button';
 import { formatMoney } from '@/lib/money';
 import { create as checkout } from '@/routes/checkout';
@@ -133,6 +134,7 @@ export default function Cart({
                                     order updates.
                                 </p>
                             )}
+                            <PaymentMethods />
                         </aside>
                     </div>
                 )}

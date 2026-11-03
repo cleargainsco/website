@@ -29,8 +29,8 @@ use Shop\Models\DiscountCode;
 final class CheckoutController extends Controller
 {
     /**
-     * Guests sign in or register here, and the unverified confirm their email, without
-     * leaving checkout: Fortify sends them back to the intended URL set below.
+     * Guests sign in or register here without leaving checkout: Fortify sends them back
+     * to the intended URL set below.
      */
     public function create(#[CurrentUser] ?User $user, Cart $cart, ShippingCalculator $shipping): Response|RedirectResponse
     {
@@ -43,17 +43,16 @@ final class CheckoutController extends Controller
         $subtotal = $cart->subtotal($lines);
         $shippingQuote = $shipping->quote($lines);
 
-        if ($user === null || ! $user->hasVerifiedEmail()) {
+        if ($user === null) {
             redirect()->setIntendedUrl(route('checkout.create'));
 
             return Inertia::render('marketing/checkout', [
-                'step' => $user === null ? 'account' : 'verify',
+                'step' => 'account',
                 'lines' => CartLineResource::collection($lines),
                 'subtotal' => $subtotal === null ? null : new MoneyResource($subtotal),
                 'shipping' => $shippingQuote === null ? null : new MoneyResource($shippingQuote),
                 'canResetPassword' => Features::enabled(Features::resetPasswords()),
                 'passwordRules' => Password::defaults()->toPasswordRulesString(),
-                'status' => session('status'),
             ]);
         }
 

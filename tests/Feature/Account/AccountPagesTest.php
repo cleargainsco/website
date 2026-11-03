@@ -20,12 +20,11 @@ test('customers can open their account pages', function (string $route, string $
         ->assertInertia(fn (Assert $page) => $page->component($component));
 })->with('account pages');
 
-test('an unverified customer can fix their email but not see orders yet', function () {
-    $this->actingAs(User::factory()->unverified()->customer()->create());
-
-    $this->get(route('account.profile.edit'))->assertOk();
-    $this->get(route('account.orders.index'))->assertRedirect(route('verification.notice'));
-});
+test('customers who have not confirmed their email can still open their account pages', function (string $route, string $component) {
+    $this->actingAs(User::factory()->unverified()->customer()->create())
+        ->get(route($route))
+        ->assertInertia(fn (Assert $page) => $page->component($component));
+})->with('account pages');
 
 test('customers cannot open the admin settings pages', function (string $route) {
     $this->actingAs(User::factory()->customer()->create())

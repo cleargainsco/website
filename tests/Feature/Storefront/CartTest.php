@@ -8,7 +8,10 @@ test('anyone can add to the cart and see it, priced at the tier the quantity rea
     $product = researchPeptide('10 mg')->priced([1 => 5000, 3 => 4500])->create(['name' => 'Alpha', 'stock' => 20]);
 
     $this->post(route('cart.items.store'), ['product' => $product->public_id, 'quantity' => 3])
-        ->assertSessionHasNoErrors();
+        ->assertSessionHasNoErrors()
+        ->assertInertiaFlash('cartAdded.product_id', $product->public_id)
+        ->assertInertiaFlash('cartAdded.lines.0.quantity', 3)
+        ->assertInertiaFlash('cartAdded.subtotal', ['minor' => 13500, 'currency' => 'USD']);
 
     $this->get(route('cart.show'))
         ->assertInertia(fn (Assert $page) => $page

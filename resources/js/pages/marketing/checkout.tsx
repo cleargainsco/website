@@ -9,12 +9,11 @@ import { OrderTotals } from '@/components/order-summary';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PaymentMethods } from '@/components/marketing/payment-methods';
 import { brandButton } from '@/lib/brand-button';
 import { formatMoney } from '@/lib/money';
 import { show as cartShow } from '@/routes/cart';
-import { create as checkoutCreate } from '@/routes/checkout';
 import { terms } from '@/routes/policies';
-import { send as sendVerification } from '@/routes/verification';
 import type { Money } from '@/types/money';
 import type { AppliedDiscount, CartLine } from '@/types/shop';
 
@@ -172,10 +171,9 @@ type Summary = {
 };
 
 type AccountStepProps = Summary & {
-    step: 'account' | 'verify';
+    step: 'account';
     canResetPassword: boolean;
     passwordRules: string;
-    status: string | null;
 };
 
 type DetailsStepProps = Summary & {
@@ -247,50 +245,6 @@ function AccountPanel({
     );
 }
 
-function VerifyPanel({ status }: { status: string | null }) {
-    const { auth } = usePage().props;
-
-    return (
-        <section className="rounded-3xl bg-white p-6 ring-1 ring-charcoal/5 sm:p-8">
-            <h2 className="font-serif text-2xl text-deep-ocean">
-                Confirm your email
-            </h2>
-            <p className="mt-2 text-sm text-charcoal/70">
-                We sent a link to{' '}
-                <span className="font-medium">{auth.user.email}</span>. Open it
-                and you'll come straight back here to finish your order.
-            </p>
-            {status === 'verification-link-sent' && (
-                <p className="mt-4 rounded-2xl bg-sand/40 px-4 py-3 text-sm">
-                    A new link is on its way.
-                </p>
-            )}
-            <div className="mt-6 flex flex-wrap items-center gap-4">
-                <Form
-                    {...sendVerification.form()}
-                    options={{ preserveScroll: true }}
-                >
-                    {({ processing }) => (
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className={brandButton({ variant: 'secondary' })}
-                        >
-                            Resend the link
-                        </button>
-                    )}
-                </Form>
-                <Link
-                    href={checkoutCreate()}
-                    className="text-sm font-medium text-ocean hover:text-deep-ocean"
-                >
-                    I've confirmed it
-                </Link>
-            </div>
-        </section>
-    );
-}
-
 export default function Checkout(props: AccountStepProps | DetailsStepProps) {
     if (props.step === 'details') {
         return <DetailsStep {...props} />;
@@ -303,14 +257,10 @@ export default function Checkout(props: AccountStepProps | DetailsStepProps) {
             </h1>
 
             <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_24rem]">
-                {props.step === 'account' ? (
-                    <AccountPanel
-                        canResetPassword={props.canResetPassword}
-                        passwordRules={props.passwordRules}
-                    />
-                ) : (
-                    <VerifyPanel status={props.status} />
-                )}
+                <AccountPanel
+                    canResetPassword={props.canResetPassword}
+                    passwordRules={props.passwordRules}
+                />
 
                 <aside className="h-fit space-y-5 rounded-3xl bg-white p-6 ring-1 ring-charcoal/5">
                     <h2 className="font-serif text-2xl text-deep-ocean">
@@ -507,6 +457,7 @@ function DetailsStep({
                             and email you an invoice with payment instructions.
                             Your order ships once payment is received.
                         </p>
+                        <PaymentMethods />
                     </aside>
                 </div>
             </section>

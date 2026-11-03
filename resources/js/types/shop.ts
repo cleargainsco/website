@@ -68,3 +68,9 @@ export type AdminOrder = Order & {
     can_ship: boolean;
     can_cancel: boolean;
 };
+
+export type CartAdded = {
+    product_id: string;
+    lines: CartLine[];
+    subtotal: Money | null;
+};
