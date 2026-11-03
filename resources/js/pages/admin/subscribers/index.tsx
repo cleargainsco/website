@@ -1,11 +1,11 @@
-import { Link } from '@inertiajs/react';
 import { Users } from 'lucide-react';
+import { Pagination } from '@/components/admin/pagination';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/dates';
 import { index } from '@/routes/admin/subscribers';
-import type { Paginated, SubscriberRow } from '@/types/marketing';
+import type { SubscriberRow } from '@/types/marketing';
+import type { Paginated } from '@/types/pagination';
 
 export default function SubscribersIndex({
     subscribers,
@@ -120,30 +120,7 @@ export default function SubscribersIndex({
                 </div>
             )}
 
-            {subscribers.last_page > 1 && (
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>
-                        Page {subscribers.current_page} of{' '}
-                        {subscribers.last_page}
-                    </span>
-                    <div className="flex gap-2">
-                        {subscribers.prev_page_url && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={subscribers.prev_page_url}>
-                                    Previous
-                                </Link>
-                            </Button>
-                        )}
-                        {subscribers.next_page_url && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={subscribers.next_page_url}>
-                                    Next
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            )}
+            <Pagination page={subscribers} />
         </div>
     );
 }

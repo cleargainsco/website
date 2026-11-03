@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -32,6 +33,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Order> $orders
+ * @property-read Subscriber|null $subscriber
+ * @property-read int|null $orders_count
+ * @property-read string|null $orders_max_placed_at
+ * @property-read int|string|null $spent_minor
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'roles', 'permissions'])]
@@ -53,6 +58,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      *
      * @return array<string, string>
      */
+    /**
+     * @return HasOne<Subscriber, $this>
+     */
+    public function subscriber(): HasOne
+    {
+        return $this->hasOne(Subscriber::class);
+    }
+
     /**
      * Admins pass every permission check (Gate::before), so a permission added later
      * needs no re-seed before they can use it.

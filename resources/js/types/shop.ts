@@ -61,6 +61,7 @@ export type Order = {
 };
 
 export type AdminOrder = Order & {
+    customer_id: number;
     customer_name: string | null;
     research_use_confirmed_at: string | null;
     can_mark_paid: boolean;
