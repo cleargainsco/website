@@ -28,12 +28,3 @@ export type SubscriberRow = {
     synced_to_resend_at: string | null;
     created_at: string | null;
 };
-
-export type Paginated<T> = {
-    data: T[];
-    current_page: number;
-    last_page: number;
-    total: number;
-    prev_page_url: string | null;
-    next_page_url: string | null;
-};

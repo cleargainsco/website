@@ -1,4 +1,4 @@
-import { Form } from '@inertiajs/react';
+import { Form, Link } from '@inertiajs/react';
 import { Ban, CircleDollarSign, Truck } from 'lucide-react';
 import OrderCancellationController from '@/actions/App/Http/Controllers/Admin/OrderCancellationController';
 import OrderPaymentController from '@/actions/App/Http/Controllers/Admin/OrderPaymentController';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, formatDateTime } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
+import { show as customerShow } from '@/routes/admin/customers';
 import { index, show } from '@/routes/admin/orders';
 import type { AdminOrder } from '@/types/shop';
 
@@ -181,7 +182,12 @@ export default function OrderShow({ order }: Props) {
                                 Customer
                             </h2>
                             <p className="mt-3">
-                                {order.customer_name ?? address.name}
+                                <Link
+                                    href={customerShow(order.customer_id)}
+                                    className="font-medium hover:underline"
+                                >
+                                    {order.customer_name ?? address.name}
+                                </Link>
                             </p>
                             <a
                                 href={`mailto:${order.email}?subject=${encodeURIComponent(`Invoice for order ${order.number}`)}`}

@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import {
+    AtSign,
     Gift,
     LayoutGrid,
     Mail,
@@ -23,6 +24,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard, home } from '@/routes';
+import { index as customersIndex } from '@/routes/admin/customers';
 import { index as emailsIndex } from '@/routes/admin/emails';
 import { index as ordersIndex } from '@/routes/admin/orders';
 import { index as productsIndex } from '@/routes/admin/products';
@@ -48,6 +50,11 @@ const mainNavItems: NavItem[] = [
         icon: Package,
     },
     {
+        title: 'Customers',
+        href: customersIndex(),
+        icon: Users,
+    },
+    {
         title: 'Welcome offer',
         href: welcomeOfferEdit(),
         icon: Gift,
@@ -55,7 +62,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Subscribers',
         href: subscribersIndex(),
-        icon: Users,
+        icon: AtSign,
     },
     {
         title: 'Emails',

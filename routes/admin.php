@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\Permission;
 use App\Http\Controllers\Admin\ArchivedProductController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmailPreviewController;
 use App\Http\Controllers\Admin\OrderCancellationController;
 use App\Http\Controllers\Admin\OrderController;
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])
 
         Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index')->withHead(title: 'SEO');
         Route::put('seo/{page}', [SeoPageController::class, 'update'])->name('seo.update');
+
+        Route::get('customers', [CustomerController::class, 'index'])->name('customers.index')->withHead(title: 'Customers');
+        Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 
         Route::get('welcome-offer', [WelcomeOfferController::class, 'edit'])->name('welcome-offer.edit')->withHead(title: 'Welcome offer');
         Route::put('welcome-offer', [WelcomeOfferController::class, 'update'])->name('welcome-offer.update');

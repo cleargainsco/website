@@ -10,6 +10,7 @@ export enum Permission {
     OrdersManage = 'orders.manage',
     SeoManage = 'seo.manage',
     MarketingManage = 'marketing.manage',
+    CustomersManage = 'customers.manage',
 }
 
 export enum FieldKind {

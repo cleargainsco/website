@@ -11,6 +11,7 @@ enum Permission: string
     case OrdersManage = 'orders.manage';
     case SeoManage = 'seo.manage';
     case MarketingManage = 'marketing.manage';
+    case CustomersManage = 'customers.manage';
 
     /**
      * @return array<int, string>

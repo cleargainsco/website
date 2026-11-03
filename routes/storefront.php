@@ -32,8 +32,9 @@ Route::middleware('throttle:60,1')->group(function (): void {
     Route::delete('cart/items/{product}', [CartItemController::class, 'destroy'])->name('cart.items.destroy');
 });
 
+Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout.create')->withHead(title: 'Checkout', robots: 'noindex, nofollow');
+
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('checkout', [CheckoutController::class, 'create'])->name('checkout.create')->withHead(title: 'Checkout', robots: 'noindex, nofollow');
     Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
     Route::post('checkout/discount', [CheckoutDiscountController::class, 'store'])->middleware('throttle:10,1')->name('checkout.discount.store');
     Route::delete('checkout/discount', [CheckoutDiscountController::class, 'destroy'])->name('checkout.discount.destroy');

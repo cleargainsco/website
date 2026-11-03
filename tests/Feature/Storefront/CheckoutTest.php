@@ -11,11 +11,11 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Shop\Enums\OrderStatus;
 use Shop\Models\Order;
 
-test('checkout needs a signed-in customer with a verified email', function () {
-    $this->get(route('checkout.create'))->assertRedirect(route('login'));
+test('placing an order needs a signed-in customer with a verified email', function () {
+    $this->post(route('checkout.store'), shippingAddress())->assertRedirect(route('login'));
 
     $this->actingAs(User::factory()->unverified()->customer()->create())
-        ->get(route('checkout.create'))
+        ->post(route('checkout.store'), shippingAddress())
         ->assertRedirect(route('verification.notice'));
 });
 

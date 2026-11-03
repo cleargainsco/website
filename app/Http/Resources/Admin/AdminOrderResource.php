@@ -22,6 +22,7 @@ final class AdminOrderResource extends JsonResource
     {
         return [
             ...(new OrderResource($this->resource))->toArray($request),
+            'customer_id' => $this->user_id,
             'customer_name' => $this->whenLoaded('customer', fn (): ?string => $this->customer instanceof User ? $this->customer->name : null),
             'research_use_confirmed_at' => $this->details['research_use_confirmed_at'] ?? null,
             'can_mark_paid' => $this->isAwaitingPayment(),

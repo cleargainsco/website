@@ -5,7 +5,6 @@ import { OrderTotals } from '@/components/order-summary';
 import { ResearchUseNotice } from '@/components/marketing/research-use-notice';
 import { brandButton } from '@/lib/brand-button';
 import { formatMoney } from '@/lib/money';
-import { login, register } from '@/routes';
 import { create as checkout } from '@/routes/checkout';
 import { index as shopIndex, show as productShow } from '@/routes/shop';
 import type { Money } from '@/types/money';
@@ -129,22 +128,9 @@ export default function Cart({
                             </Link>
                             {!auth.user && (
                                 <p className="text-center text-xs text-charcoal/60">
-                                    Checkout needs an account, so we can send
-                                    your invoice and order updates.{' '}
-                                    <Link
-                                        href={login()}
-                                        className="font-medium text-deep-ocean hover:underline"
-                                    >
-                                        Log in
-                                    </Link>{' '}
-                                    or{' '}
-                                    <Link
-                                        href={register()}
-                                        className="font-medium text-deep-ocean hover:underline"
-                                    >
-                                        create one
-                                    </Link>
-                                    .
+                                    You'll log in or create an account at
+                                    checkout, so we can send your invoice and
+                                    order updates.
                                 </p>
                             )}
                         </aside>
