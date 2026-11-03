@@ -5,6 +5,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { NavItem } from '@/types';
@@ -20,7 +23,13 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
                             asChild
-                            isActive={isCurrentOrParentUrl(item.href)}
+                            isActive={
+                                item.items
+                                    ? item.items.some((child) =>
+                                          isCurrentOrParentUrl(child.href),
+                                      )
+                                    : isCurrentOrParentUrl(item.href)
+                            }
                             tooltip={{ children: item.title }}
                         >
                             <Link href={item.href} prefetch>
@@ -28,6 +37,24 @@ export function NavMain({ items }: { items: NavItem[] }) {
                                 <span>{item.title}</span>
                             </Link>
                         </SidebarMenuButton>
+                        {item.items && (
+                            <SidebarMenuSub>
+                                {item.items.map((child) => (
+                                    <SidebarMenuSubItem key={child.title}>
+                                        <SidebarMenuSubButton
+                                            asChild
+                                            isActive={isCurrentOrParentUrl(
+                                                child.href,
+                                            )}
+                                        >
+                                            <Link href={child.href} prefetch>
+                                                <span>{child.title}</span>
+                                            </Link>
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                ))}
+                            </SidebarMenuSub>
+                        )}
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>

@@ -1,3 +1,4 @@
+import { paymentMethodNames } from '@/components/marketing/payment-methods';
 import { Link, usePage } from '@inertiajs/react';
 import { policyLinks, primaryLinks } from '@/lib/storefront-links';
 import { home } from '@/routes';
@@ -59,6 +60,7 @@ export function SiteFooter() {
                         All products are sold for research use only and are not
                         for human or veterinary consumption.
                     </p>
+                    <p>We accept {paymentMethodNames}.</p>
                     <p>
                         © {new Date().getFullYear()} Clear Gains. All rights
                         reserved.

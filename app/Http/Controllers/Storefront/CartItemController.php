@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\StoreCartItemRequest;
 use App\Http\Requests\Storefront\UpdateCartItemRequest;
+use App\Http\Resources\MoneyResource;
+use App\Http\Resources\Shop\CartLineResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -17,13 +19,23 @@ use Shop\Models\Product;
 
 final class CartItemController extends Controller
 {
+    /**
+     * The flash opens the cart drawer on whatever page the customer added from.
+     */
     public function store(StoreCartItemRequest $request, Cart $cart): RedirectResponse
     {
         $product = Product::query()->where('public_id', $request->safe()->string('product')->toString())->firstOrFail();
 
         $this->attempt(fn () => $cart->add($product, $request->integer('quantity')));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __(':name added to your cart.', ['name' => $product->name])]);
+        $lines = $cart->lines();
+        $subtotal = $cart->subtotal($lines);
+
+        Inertia::flash('cartAdded', [
+            'product_id' => $product->public_id,
+            'lines' => CartLineResource::collection($lines)->resolve($request),
+            'subtotal' => $subtotal === null ? null : (new MoneyResource($subtotal))->resolve($request),
+        ]);
 
         return back();
     }

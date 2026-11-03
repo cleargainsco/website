@@ -11,12 +11,18 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Shop\Enums\OrderStatus;
 use Shop\Models\Order;
 
-test('placing an order needs a signed-in customer with a verified email', function () {
+test('placing an order needs a signed-in customer', function () {
     $this->post(route('checkout.store'), shippingAddress())->assertRedirect(route('login'));
+});
+
+test('a customer who has not confirmed their email can still place an order', function () {
+    $this->post(route('cart.items.store'), ['product' => researchPeptide()->priced([1 => 5000])->create(['stock' => 5])->public_id, 'quantity' => 1]);
 
     $this->actingAs(User::factory()->unverified()->customer()->create())
         ->post(route('checkout.store'), shippingAddress())
-        ->assertRedirect(route('verification.notice'));
+        ->assertRedirectContains('/account/orders/');
+
+    expect(Order::query()->count())->toBe(1);
 });
 
 test('an empty cart goes back to the cart page', function () {

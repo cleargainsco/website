@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Illuminate\Support\Facades\URL;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -31,7 +30,7 @@ test('logging in from checkout comes back to checkout, ready to order', function
         ->assertInertia(fn (Assert $page) => $page->where('step', 'details')->has('address'));
 });
 
-test('registering from checkout comes back to checkout to confirm the email', function () {
+test('registering from checkout comes straight back, ready to order without confirming the email first', function () {
     $this->get(route('checkout.create'));
 
     $this->post(route('register.store'), [
@@ -42,20 +41,5 @@ test('registering from checkout comes back to checkout to confirm the email', fu
     ])->assertRedirect(route('checkout.create'));
 
     $this->get(route('checkout.create'))
-        ->assertInertia(fn (Assert $page) => $page->where('step', 'verify'));
-});
-
-test('the verification link returns to checkout', function () {
-    $customer = User::factory()->unverified()->customer()->create();
-
-    $this->actingAs($customer)->get(route('checkout.create'));
-
-    $link = URL::temporarySignedRoute('verification.verify', now()->addHour(), [
-        'id' => $customer->id,
-        'hash' => sha1($customer->email),
-    ]);
-
-    $this->get($link)->assertRedirect(route('checkout.create'));
-
-    expect($customer->refresh()->hasVerifiedEmail())->toBeTrue();
+        ->assertInertia(fn (Assert $page) => $page->where('step', 'details')->has('address'));
 });

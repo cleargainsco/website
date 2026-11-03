@@ -1,3 +1,4 @@
+import { paymentMethodNames } from '@/components/marketing/payment-methods';
 import { Link, usePage } from '@inertiajs/react';
 import { Mail, Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -26,6 +27,10 @@ export default function Faq() {
                             reserve your items and email you an invoice with
                             payment instructions, and your order ships once
                             payment is received.
+                        </Question>
+                        <Question q="How can I pay?">
+                            Your invoice can be paid with {paymentMethodNames}.
+                            The invoice email has the details for each.
                         </Question>
                         <Question q="How does bulk pricing work?">
                             The price per vial drops at 3, 6 and 10 vials of the

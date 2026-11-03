@@ -11,6 +11,7 @@ export enum Permission {
     SeoManage = 'seo.manage',
     MarketingManage = 'marketing.manage',
     CustomersManage = 'customers.manage',
+    ContentManage = 'content.manage',
 }
 
 export enum FieldKind {

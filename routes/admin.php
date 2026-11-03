@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Admin\ArchivedProductController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EmailPreviewController;
+use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\OrderCancellationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderPaymentController;
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified', 'can:'.Permission::AdminAccess->value])
     ->group(function () {
         Route::get('emails', [EmailPreviewController::class, 'index'])->name('emails.index')->withHead(title: 'Emails');
         Route::get('emails/{email}', [EmailPreviewController::class, 'show'])->name('emails.show');
+
+        Route::get('pages/home', [HomePageController::class, 'edit'])->name('pages.home.edit')->withHead(title: 'Home page');
+        Route::put('pages/home', [HomePageController::class, 'update'])->name('pages.home.update');
 
         Route::get('seo', [SeoPageController::class, 'index'])->name('seo.index')->withHead(title: 'SEO');
         Route::put('seo/{page}', [SeoPageController::class, 'update'])->name('seo.update');
