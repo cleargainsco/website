@@ -29,3 +29,12 @@ export type Product = {
     tiers: PriceTier[];
     batches: Batch[];
 };
+
+export type HomeHero = {
+    eyebrow: string;
+    title: string;
+    title_highlight: string | null;
+    description: string;
+    image_url: string | null;
+    image_alt: string;
+};

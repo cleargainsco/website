@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     AtSign,
+    FileText,
     Gift,
     LayoutGrid,
     Mail,
@@ -27,6 +28,7 @@ import { dashboard, home } from '@/routes';
 import { index as customersIndex } from '@/routes/admin/customers';
 import { index as emailsIndex } from '@/routes/admin/emails';
 import { index as ordersIndex } from '@/routes/admin/orders';
+import { edit as homePageEdit } from '@/routes/admin/pages/home';
 import { index as productsIndex } from '@/routes/admin/products';
 import { index as seoIndex } from '@/routes/admin/seo';
 import { index as subscribersIndex } from '@/routes/admin/subscribers';
@@ -53,6 +55,12 @@ const mainNavItems: NavItem[] = [
         title: 'Customers',
         href: customersIndex(),
         icon: Users,
+    },
+    {
+        title: 'Pages',
+        href: homePageEdit(),
+        icon: FileText,
+        items: [{ title: 'Home', href: homePageEdit() }],
     },
     {
         title: 'Welcome offer',

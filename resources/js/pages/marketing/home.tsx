@@ -1,12 +1,13 @@
 import { Link } from '@inertiajs/react';
 import { ArrowRight, FileCheck2, MessagesSquare, Tags } from 'lucide-react';
 import { Eyebrow } from '@/components/marketing/eyebrow';
+import { HomeHeroCopy, HomeHeroImage } from '@/components/marketing/home-hero';
 import { MountainRange } from '@/components/marketing/mountain-range';
 import { ProductCard } from '@/components/marketing/product-card';
 import { brandButton } from '@/lib/brand-button';
 import { testing } from '@/routes';
 import { index as shop } from '@/routes/shop';
-import type { Product } from '@/types/storefront';
+import type { HomeHero, Product } from '@/types/storefront';
 
 const principles = [
     {
@@ -28,23 +29,19 @@ const principles = [
 
 const motto = ['Cleaner', 'Purer', 'Brighter', 'Stronger', 'Progress'];
 
-export default function Home({ products }: { products: Product[] }) {
+export default function Home({
+    hero,
+    products,
+}: {
+    hero: HomeHero;
+    products: Product[];
+}) {
     return (
         <>
             <section className="relative overflow-hidden">
                 <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 pt-14 pb-32 lg:grid-cols-[1fr_1.1fr] lg:px-8 lg:pt-20 lg:pb-44">
                     <div>
-                        <Eyebrow>Research peptides</Eyebrow>
-                        <h1 className="mt-5 font-serif text-5xl leading-[1.05] font-medium text-charcoal sm:text-6xl">
-                            Clarity in{' '}
-                            <span className="text-deep-ocean">every vial.</span>
-                        </h1>
-                        <p className="mt-6 max-w-lg text-lg leading-relaxed text-charcoal/70">
-                            Clear Gains supplies research-grade peptides with
-                            the paperwork to match: batch-level certificates of
-                            analysis, straightforward pricing and support from
-                            people who know the catalog.
-                        </p>
+                        <HomeHeroCopy hero={hero} />
                         <div className="mt-9 flex flex-wrap gap-3">
                             <Link href={shop()} className={brandButton()}>
                                 Shop the catalog
@@ -68,13 +65,7 @@ export default function Home({ products }: { products: Product[] }) {
 
                     <div className="relative">
                         <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-sand/60" />
-                        <img
-                            src="/images/vial-and-card.jpg"
-                            srcSet="/images/vial-and-card-960.jpg 960w, /images/vial-and-card.jpg 1536w"
-                            sizes="(min-width: 1024px) 50vw, 100vw"
-                            alt="A Clear Gains research peptide vial beside its matching label card"
-                            className="aspect-[3/2] w-full rounded-[2rem] object-cover shadow-2xl shadow-deep-ocean/20"
-                        />
+                        <HomeHeroImage hero={hero} />
                     </div>
                 </div>
                 <MountainRange className="absolute inset-x-0 bottom-0 h-20 lg:h-28" />
