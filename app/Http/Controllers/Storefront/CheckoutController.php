@@ -12,9 +12,11 @@ use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Fortify\Features;
 use Shop\Actions\PlaceOrderAction;
 use Shop\Cart\Cart;
 use Shop\Contracts\ShippingCalculator;
@@ -26,7 +28,11 @@ use Shop\Models\DiscountCode;
 
 final class CheckoutController extends Controller
 {
-    public function create(#[CurrentUser] User $user, Cart $cart, ShippingCalculator $shipping): Response|RedirectResponse
+    /**
+     * Guests sign in or register here, and the unverified confirm their email, without
+     * leaving checkout: Fortify sends them back to the intended URL set below.
+     */
+    public function create(#[CurrentUser] ?User $user, Cart $cart, ShippingCalculator $shipping): Response|RedirectResponse
     {
         $lines = $cart->lines();
 
@@ -36,12 +42,28 @@ final class CheckoutController extends Controller
 
         $subtotal = $cart->subtotal($lines);
         $shippingQuote = $shipping->quote($lines);
+
+        if ($user === null || ! $user->hasVerifiedEmail()) {
+            redirect()->setIntendedUrl(route('checkout.create'));
+
+            return Inertia::render('marketing/checkout', [
+                'step' => $user === null ? 'account' : 'verify',
+                'lines' => CartLineResource::collection($lines),
+                'subtotal' => $subtotal === null ? null : new MoneyResource($subtotal),
+                'shipping' => $shippingQuote === null ? null : new MoneyResource($shippingQuote),
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'passwordRules' => Password::defaults()->toPasswordRulesString(),
+                'status' => session('status'),
+            ]);
+        }
+
         $lastOrder = $user->orders()->latest('placed_at')->first();
         $discount = $this->applicableDiscount($cart, $user);
         $discountAmount = $discount === null || $subtotal === null ? null : $discount->amountOff($subtotal);
         $afterDiscount = $discountAmount === null ? $subtotal : $subtotal->minus($discountAmount);
 
         return Inertia::render('marketing/checkout', [
+            'step' => 'details',
             'lines' => CartLineResource::collection($lines),
             'subtotal' => $subtotal === null ? null : new MoneyResource($subtotal),
             'discount' => $discount === null || $discountAmount === null ? null : [
