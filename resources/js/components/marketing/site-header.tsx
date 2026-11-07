@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { Menu, ShoppingBag, UserRound } from 'lucide-react';
 import {
     Sheet,
+    SheetClose,
     SheetContent,
     SheetTitle,
     SheetTrigger,
@@ -114,39 +115,46 @@ export function SiteHeader() {
                         />
                         <nav className="mt-10 flex flex-col gap-6">
                             {primaryLinks.map((link) => (
-                                <Link
-                                    key={link.title}
-                                    href={link.href}
-                                    className="font-serif text-2xl text-charcoal hover:text-deep-ocean"
-                                >
-                                    {link.title}
-                                </Link>
+                                <SheetClose key={link.title} asChild>
+                                    <Link
+                                        href={link.href}
+                                        className="font-serif text-2xl text-charcoal hover:text-deep-ocean"
+                                    >
+                                        {link.title}
+                                    </Link>
+                                </SheetClose>
                             ))}
                         </nav>
                         <div className="mt-10 flex flex-col gap-3 border-t border-charcoal/10 pt-8">
                             {auth.user ? (
-                                <Link
-                                    href={accountLink.href}
-                                    className={brandButton()}
-                                >
-                                    {accountLink.label}
-                                </Link>
-                            ) : (
-                                <>
+                                <SheetClose asChild>
                                     <Link
-                                        href={register()}
+                                        href={accountLink.href}
                                         className={brandButton()}
                                     >
-                                        Register
+                                        {accountLink.label}
                                     </Link>
-                                    <Link
-                                        href={login()}
-                                        className={brandButton({
-                                            variant: 'secondary',
-                                        })}
-                                    >
-                                        Log in
-                                    </Link>
+                                </SheetClose>
+                            ) : (
+                                <>
+                                    <SheetClose asChild>
+                                        <Link
+                                            href={register()}
+                                            className={brandButton()}
+                                        >
+                                            Register
+                                        </Link>
+                                    </SheetClose>
+                                    <SheetClose asChild>
+                                        <Link
+                                            href={login()}
+                                            className={brandButton({
+                                                variant: 'secondary',
+                                            })}
+                                        >
+                                            Log in
+                                        </Link>
+                                    </SheetClose>
                                 </>
                             )}
                         </div>
